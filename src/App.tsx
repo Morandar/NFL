@@ -112,6 +112,7 @@ function App() {
   const [highlightPlayerId, setHighlightPlayerId] = useState<string | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [currentUserPlayerId, setCurrentUserPlayerId] = useState<string | null>(null);
+  const [chatMessage, setChatMessage] = useState('');
   const [mapRegions, setMapRegions] = useState<MapRegion[]>(() => loadStoredRegions());
 
   const handleLogin = (name: string) => {
@@ -130,6 +131,13 @@ function App() {
       ...prev,
       messages: [...prev.messages, { user: username, text: text.trim(), timestamp: new Date().toISOString() }]
     }));
+  };
+
+  const sendMessage = () => {
+    if (chatMessage.trim()) {
+      handleSendMessage(chatMessage.trim());
+      setChatMessage('');
+    }
   };
 
   useEffect(() => {
@@ -354,6 +362,38 @@ function App() {
           />
         )}
         {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
+        {gameState.phase === 'setup' && !isHost && gameState.players.length === 0 && (
+          <div className="waiting-screen">
+            <h2>Čekání na hosta</h2>
+            <p>Host připravuje hru...</p>
+            <div className="connected-users">
+              <h3>Připojení uživatelé: {gameState.connectedUsers.join(', ')}</h3>
+            </div>
+            <div className="chat-section">
+              <h3>Chat</h3>
+              <div className="chat-messages">
+                {gameState.messages.slice(-10).map((msg, index) => (
+                  <div key={index} className="chat-message">
+                    <strong>{msg.user}:</strong> {msg.text}
+                  </div>
+                ))}
+              </div>
+              <div className="chat-input">
+                <input
+                  type="text"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                  placeholder="Napiš zprávu..."
+                  maxLength={200}
+                />
+                <button onClick={sendMessage} disabled={!chatMessage.trim()}>
+                  Odeslat
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {gameState.phase === 'draft' && (
            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} currentUserPlayerId={currentUserPlayerId} />
