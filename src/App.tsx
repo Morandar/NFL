@@ -307,12 +307,6 @@ function App() {
     clearStoredRegions();
   };
 
-  const handleUpdatePlayerName = (playerId: string, name: string) => {
-    setGameState((prev) => ({
-      ...prev,
-      players: prev.players.map((p) => (p.id === playerId ? { ...p, name } : p)),
-    }));
-  };
 
   const handleClaimPlayer = (playerId: string, name: string) => {
     if (!username) return;
