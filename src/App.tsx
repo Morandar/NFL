@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { User } from '@supabase/supabase-js';
+import { useState, useEffect, useCallback } from 'react';
 import { GameState, Player, Settings, TeamId } from './state/types';
 import { saveState, loadState, clearState } from './state/persistence';
 import { SetupPanel } from './components/SetupPanel';
@@ -17,7 +16,6 @@ import { DEFAULT_MAP_REGIONS, MapRegion } from './data/mapRegions';
 import { clearStoredRegions, loadStoredRegions, persistRegions } from './data/regionStorage';
 import { NFL_TEAM_MAP } from './data/nflTeams';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
-import { getSupabaseClient } from './lib/supabaseClient';
 import './styles.css';
 
 const initialState: GameState = {
@@ -82,7 +80,13 @@ function createEmptyOwnership(): Record<TeamId, string | null> {
 }
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [username, setUsername] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('nfl-username') || null;
+    } catch {
+      return null;
+    }
+  });
   const [gameState, setGameState] = useState<GameState>(() => {
     const loaded = loadState();
     if (loaded) {
@@ -108,37 +112,32 @@ function App() {
   const [currentUserPlayerId, setCurrentUserPlayerId] = useState<string | null>(null);
   const [mapRegions, setMapRegions] = useState<MapRegion[]>(() => loadStoredRegions());
 
-  const client = useMemo(() => getSupabaseClient(), []);
+  const handleLogin = (name: string) => {
+    setUsername(name);
+    localStorage.setItem('nfl-username', name);
+  };
 
   useEffect(() => {
-    if (!client) return;
-    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, [client]);
-
-  useEffect(() => {
-    if (gameState.hostId === null && user && gameState.players.length === 0) {
-      setGameState(prev => ({...prev, hostId: user.id}));
+    if (gameState.hostId === null && username && gameState.players.length === 0) {
+      setGameState(prev => ({...prev, hostId: username}));
     }
-  }, [gameState.hostId, user, gameState.players.length]);
+  }, [gameState.hostId, username, gameState.players.length]);
 
   useEffect(() => {
-    if (user) {
-      const myPlayer = gameState.players.find(p => p.userId === user.id);
+    if (username) {
+      const myPlayer = gameState.players.find(p => p.userId === username);
       setCurrentUserPlayerId(myPlayer?.id || null);
     } else {
       setCurrentUserPlayerId(null);
     }
-  }, [user, gameState.players]);
+  }, [username, gameState.players]);
 
   const { status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
     setGameState,
   );
 
-  const isHost = user && gameState.hostId === user.id;
+  const isHost = username && gameState.hostId === username;
 
   useEffect(() => {
     saveState(gameState);
@@ -301,10 +300,10 @@ function App() {
   };
 
   const handleClaimPlayer = (playerId: string, name: string) => {
-    if (!user) return;
+    if (!username) return;
     setGameState((prev) => ({
       ...prev,
-      players: prev.players.map((p) => (p.id === playerId ? { ...p, name, userId: user.id } : p)),
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, name, userId: username } : p)),
     }));
   };
 
@@ -312,8 +311,8 @@ function App() {
     ? gameState.players.find((player) => player.id === highlightPlayerId)
     : undefined;
 
-  if (!user) {
-    return <Login />;
+  if (!username) {
+    return <Login onLogin={handleLogin} />;
   }
 
   return (
@@ -321,8 +320,11 @@ function App() {
       <header className="app-header">
         <h1>NFL Conquest Map</h1>
         <div className="user-info">
-          <span>Přihlášen: {user.email}</span>
-          <button onClick={() => client?.auth.signOut()}>Odhlásit</button>
+          <span>Přihlášen: {username}</span>
+          <button onClick={() => {
+            setUsername(null);
+            localStorage.removeItem('nfl-username');
+          }}>Odhlásit</button>
         </div>
       </header>
 

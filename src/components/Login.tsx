@@ -1,56 +1,43 @@
 import { useState } from 'react';
-import { getSupabaseClient } from '../lib/supabaseClient';
 
-export function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isRegister, setIsRegister] = useState(false);
+interface LoginProps {
+  onLogin: (username: string) => void;
+}
+
+export function Login({ onLogin }: LoginProps) {
+  const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  const client = getSupabaseClient();
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!client) return;
-
-    try {
-      setError('');
-      if (isRegister) {
-        const { error } = await client.auth.signUp({ email, password });
-        if (error) throw error;
-      } else {
-        const { error } = await client.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
-    } catch (err: any) {
-      setError(err.message);
+    const trimmed = username.trim();
+    if (!trimmed) {
+      setError('Zadejte uživatelské jméno');
+      return;
     }
+    if (trimmed.length < 2) {
+      setError('Uživatelské jméno musí mít alespoň 2 znaky');
+      return;
+    }
+    setError('');
+    onLogin(trimmed);
   };
 
   return (
     <div className="login">
-      <h2>{isRegister ? 'Registrovat se' : 'Přihlásit se'}</h2>
+      <h2>Připojit se k hře</h2>
       <form onSubmit={handleSubmit}>
         <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Uživatelské jméno"
           required
+          maxLength={20}
         />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Heslo"
-          required
-        />
-        <button type="submit">{isRegister ? 'Registrovat' : 'Přihlásit'}</button>
+        <button type="submit">Připojit se</button>
       </form>
       {error && <div className="error-message">{error}</div>}
-      <button type="button" onClick={() => setIsRegister(!isRegister)}>
-        {isRegister ? 'Už máte účet? Přihlásit se' : 'Potřebujete účet? Registrovat se'}
-      </button>
     </div>
   );
 }
