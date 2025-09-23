@@ -115,14 +115,22 @@ function App() {
   const [chatMessage, setChatMessage] = useState('');
   const [mapRegions, setMapRegions] = useState<MapRegion[]>(() => loadStoredRegions());
 
-  const handleLogin = (name: string) => {
+  const handleLogin = (name: string, role: 'host' | 'player') => {
     setUsername(name);
     localStorage.setItem('nfl-username', name);
     // Add to connected users if not already
-    setGameState(prev => ({
-      ...prev,
-      connectedUsers: prev.connectedUsers.includes(name) ? prev.connectedUsers : [...prev.connectedUsers, name]
-    }));
+    setGameState(prev => {
+      const newConnected = prev.connectedUsers.includes(name) ? prev.connectedUsers : [...prev.connectedUsers, name];
+      let newHostId = prev.hostId;
+      if (role === 'host' && !prev.hostId) {
+        newHostId = name;
+      }
+      return {
+        ...prev,
+        connectedUsers: newConnected,
+        hostId: newHostId,
+      };
+    });
   };
 
   const handleSendMessage = (text: string) => {

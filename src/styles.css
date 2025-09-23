@@ -1262,6 +1262,20 @@ select:focus {
   margin-bottom: 1rem;
 }
 
+.role-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.role-select label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
 /* Join Screen */
 .join-screen {
   max-width: 600px;

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 
 interface LoginProps {
-  onLogin: (username: string) => void;
+  onLogin: (username: string, role: 'host' | 'player') => void;
 }
 
 export function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
+  const [role, setRole] = useState<'host' | 'player'>('player');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -20,7 +21,7 @@ export function Login({ onLogin }: LoginProps) {
       return;
     }
     setError('');
-    onLogin(trimmed);
+    onLogin(trimmed, role);
   };
 
   return (
@@ -35,6 +36,28 @@ export function Login({ onLogin }: LoginProps) {
           required
           maxLength={20}
         />
+        <div className="role-select">
+          <label>
+            <input
+              type="radio"
+              name="role"
+              value="player"
+              checked={role === 'player'}
+              onChange={(e) => setRole(e.target.value as 'player')}
+            />
+            Připojit jako Hráč
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="role"
+              value="host"
+              checked={role === 'host'}
+              onChange={(e) => setRole(e.target.value as 'host')}
+            />
+            Připojit jako Host
+          </label>
+        </div>
         <button type="submit">Připojit se</button>
       </form>
       {error && <div className="error-message">{error}</div>}
