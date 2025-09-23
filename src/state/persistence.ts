@@ -1,8 +1,12 @@
 import { GameState } from './types';
+import { SUPABASE_ENABLED } from '../lib/supabaseClient';
 
 const STORAGE_KEY = 'nfl-conquest-state-v1';
 
 export function saveState(state: GameState): void {
+  if (SUPABASE_ENABLED) {
+    return; // Don't save locally in multiplayer mode
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (error) {
@@ -11,6 +15,9 @@ export function saveState(state: GameState): void {
 }
 
 export function loadState(): GameState | null {
+  if (SUPABASE_ENABLED) {
+    return null; // Don't load locally in multiplayer mode
+  }
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
