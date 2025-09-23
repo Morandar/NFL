@@ -379,6 +379,7 @@ function App() {
                 currentUserPlayerId={currentUserPlayerId}
                 onSetCurrentUserPlayerId={setCurrentUserPlayerId}
                 onUpdatePlayerName={handleUpdatePlayerName}
+                isHost={!!isHost}
               />
             </div>
             <aside className="sidebar">

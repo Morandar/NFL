@@ -29,6 +29,7 @@ interface ControlPanelProps {
   currentUserPlayerId: string | null;
   onSetCurrentUserPlayerId: (id: string | null) => void;
   onUpdatePlayerName: (playerId: string, name: string) => void;
+  isHost: boolean;
 }
 
 export function ControlPanel({
@@ -52,6 +53,7 @@ export function ControlPanel({
   currentUserPlayerId,
   onSetCurrentUserPlayerId,
   onUpdatePlayerName,
+  isHost,
 }: ControlPanelProps) {
   const [csvData, setCsvData] = useState('');
   const [error, setError] = useState('');
@@ -280,6 +282,11 @@ export function ControlPanel({
                   maxLength={20}
                 />
               </div>
+            )}
+            {isHost && (
+              <button type="button" onClick={onReset} className="reset-btn" style={{ marginTop: '0.5rem' }}>
+                Reset Game
+              </button>
             )}
           </div>
         ) : (
