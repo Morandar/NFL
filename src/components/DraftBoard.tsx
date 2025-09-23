@@ -5,9 +5,10 @@ import { TEAM_COLORS } from '../data/teamColors';
 interface DraftBoardProps {
   gameState: GameState;
   onPickTeam: (teamId: TeamId) => void;
+  currentUserPlayerId: string | null;
 }
 
-export function DraftBoard({ gameState, onPickTeam }: DraftBoardProps) {
+export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId }: DraftBoardProps) {
   const { players, draftOrder, currentPickIndex, ownership } = gameState;
   const currentPlayerId = draftOrder[currentPickIndex];
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
@@ -51,13 +52,13 @@ export function DraftBoard({ gameState, onPickTeam }: DraftBoardProps) {
                 ownedMeta.conference === team.conference
               );
             });
-          const disabled = !isAvailable || draftComplete || divisionLocked;
+          const disabled = !isAvailable || draftComplete || divisionLocked || (currentUserPlayerId !== currentPlayerId);
 
           return (
             <button
               key={team.id}
               className={`team-card ${!isAvailable ? 'taken' : ''} ${divisionLocked ? 'division-locked' : ''}`}
-              onClick={() => isAvailable && !draftComplete && !divisionLocked && onPickTeam(team.id)}
+              onClick={() => isAvailable && !draftComplete && !divisionLocked && (currentUserPlayerId === currentPlayerId) && onPickTeam(team.id)}
               disabled={disabled}
               style={{
                 backgroundColor: ownerPlayer ? ownerPlayer.color : '#2a2a2a',

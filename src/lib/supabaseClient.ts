@@ -25,7 +25,7 @@ export function getSupabaseClient(): GenericClient | null {
 
     cachedClient = createClient(url, anonKey, {
       auth: {
-        persistSession: false,
+        persistSession: true,
       },
       global: {
         headers: {

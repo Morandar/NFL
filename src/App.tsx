@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { User } from '@supabase/supabase-js';
 import { GameState, Player, Settings, TeamId } from './state/types';
 import { saveState, loadState, clearState } from './state/persistence';
 import { SetupPanel } from './components/SetupPanel';
@@ -7,6 +8,7 @@ import { MapBoard } from './components/MapBoard';
 import { ControlPanel } from './components/ControlPanel';
 import { StandingsCard } from './components/StandingsCard';
 import { TeamOwnershipCard } from './components/TeamOwnershipCard';
+import { Login } from './components/Login';
 import { applyWeekResults } from './logic/conquest';
 import { checkInstantWin } from './logic/endgame';
 import { TEAM_COLORS } from './data/teamColors';
@@ -14,6 +16,7 @@ import { DEFAULT_MAP_REGIONS, MapRegion } from './data/mapRegions';
 import { clearStoredRegions, loadStoredRegions, persistRegions } from './data/regionStorage';
 import { NFL_TEAM_MAP } from './data/nflTeams';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
+import { getSupabaseClient } from './lib/supabaseClient';
 import './styles.css';
 
 const initialState: GameState = {
@@ -77,6 +80,7 @@ function createEmptyOwnership(): Record<TeamId, string | null> {
 }
 
 function App() {
+  const [user, setUser] = useState<User | null>(null);
   const [gameState, setGameState] = useState<GameState>(() => {
     const loaded = loadState();
     if (loaded) {
@@ -99,7 +103,18 @@ function App() {
   const [selectedTeamId, setSelectedTeamId] = useState<TeamId | null>(null);
   const [highlightPlayerId, setHighlightPlayerId] = useState<string | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
+  const [currentUserPlayerId, setCurrentUserPlayerId] = useState<string | null>(null);
   const [mapRegions, setMapRegions] = useState<MapRegion[]>(() => loadStoredRegions());
+
+  const client = useMemo(() => getSupabaseClient(), []);
+
+  useEffect(() => {
+    if (!client) return;
+    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, [client]);
 
   const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
@@ -259,22 +274,37 @@ function App() {
     clearStoredRegions();
   };
 
+  const handleUpdatePlayerName = (playerId: string, name: string) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, name } : p)),
+    }));
+  };
+
   const highlightedPlayer = highlightPlayerId
     ? gameState.players.find((player) => player.id === highlightPlayerId)
     : undefined;
+
+  if (!user) {
+    return <Login />;
+  }
 
   return (
     <div className="app">
       <header className="app-header">
         <h1>NFL Conquest Map</h1>
+        <div className="user-info">
+          <span>Přihlášen: {user.email}</span>
+          <button onClick={() => client?.auth.signOut()}>Odhlásit</button>
+        </div>
       </header>
 
       <main className="app-content">
         {gameState.phase === 'setup' && <SetupPanel onStartDraft={handleStartDraft} />}
 
         {gameState.phase === 'draft' && (
-          <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} />
-        )}
+           <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} currentUserPlayerId={currentUserPlayerId} />
+         )}
 
         {gameState.phase === 'season' && (
           <div className="season-layout">
@@ -309,6 +339,9 @@ function App() {
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
+                currentUserPlayerId={currentUserPlayerId}
+                onSetCurrentUserPlayerId={setCurrentUserPlayerId}
+                onUpdatePlayerName={handleUpdatePlayerName}
               />
             </div>
             <aside className="sidebar">

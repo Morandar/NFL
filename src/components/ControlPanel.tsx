@@ -27,6 +27,9 @@ interface ControlPanelProps {
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
+  currentUserPlayerId: string | null;
+  onSetCurrentUserPlayerId: (id: string | null) => void;
+  onUpdatePlayerName: (playerId: string, name: string) => void;
 }
 
 export function ControlPanel({
@@ -48,6 +51,9 @@ export function ControlPanel({
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
+  currentUserPlayerId,
+  onSetCurrentUserPlayerId,
+  onUpdatePlayerName,
 }: ControlPanelProps) {
   const [csvData, setCsvData] = useState('');
   const [error, setError] = useState('');
@@ -55,7 +61,6 @@ export function ControlPanel({
   const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [exportValue, setExportValue] = useState('');
   const [useManualEntry, setUseManualEntry] = useState(false);
-  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
   type ManualRow = {
     id: string;
@@ -92,27 +97,12 @@ export function ControlPanel({
     }
   }, [multiplayerStatus]);
 
-  const shareUrl = useMemo(() => {
-    if (!sessionId || typeof window === 'undefined') {
-      return null;
-    }
-    const url = new URL(window.location.href);
-    url.searchParams.set('session', sessionId);
-    return url.toString();
-  }, [sessionId]);
 
   useEffect(() => {
     if (!useManualEntry) return;
     setManualRows((rows) => (rows.length === 0 ? [createEmptyRow(gameState.week)] : rows));
   }, [useManualEntry, gameState.week]);
 
-  useEffect(() => {
-    if (!shareFeedback) return;
-    const timeout = window.setTimeout(() => setShareFeedback(null), 3500);
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [shareFeedback]);
 
   const handleApplyCsv = () => {
     try {
@@ -157,19 +147,6 @@ export function ControlPanel({
     setExportMessage(null);
   };
 
-  const handleCopyShareLink = async () => {
-    if (!shareUrl) return;
-    try {
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(shareUrl);
-        setShareFeedback('Odkaz zkopírován do schránky.');
-        return;
-      }
-    } catch (copyError) {
-      console.warn('Clipboard write failed', copyError);
-    }
-    setShareFeedback('Zkopíruj odkaz ručně z pole níže.');
-  };
 
   const handleManualRowChange = (rowId: string, updates: Partial<ManualRow>) => {
     setManualRows((rows) => rows.map((row) => (row.id === rowId ? { ...row, ...updates } : row)));
@@ -280,26 +257,32 @@ export function ControlPanel({
         </div>
         {isMultiplayerEnabled ? (
           <div className="multiplayer-body">
-            <div className="session-row">
-              <span>ID místnosti:</span>
-              <code>{sessionId ?? '—'}</code>
+            {multiplayerError && <div className="error-message">{multiplayerError}</div>}
+            <div className="player-selection-row">
+              <span>I am player:</span>
+              <select
+                value={currentUserPlayerId ?? ''}
+                onChange={(event) => onSetCurrentUserPlayerId(event.target.value || null)}
+              >
+                <option value="">— select —</option>
+                {gameState.players.map((player) => (
+                  <option key={player.id} value={player.id}>
+                    {player.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            {shareUrl && (
-              <>
-                <button type="button" onClick={handleCopyShareLink} disabled={multiplayerStatus !== 'ready'}>
-                  Zkopírovat odkaz
-                </button>
+            {currentUserPlayerId && (
+              <div className="player-name-row">
+                <span>My name:</span>
                 <input
                   type="text"
-                  readOnly
-                  value={shareUrl}
-                  onFocus={(event) => event.currentTarget.select()}
-                  aria-label="Odkaz pro sdílení relace"
+                  value={gameState.players.find((p) => p.id === currentUserPlayerId)?.name ?? ''}
+                  onChange={(event) => onUpdatePlayerName(currentUserPlayerId, event.target.value)}
+                  maxLength={20}
                 />
-              </>
+              </div>
             )}
-            {shareFeedback && <div className="info-message">{shareFeedback}</div>}
-            {multiplayerError && <div className="error-message">{multiplayerError}</div>}
           </div>
         ) : (
           <div className="multiplayer-body">
@@ -389,153 +372,157 @@ export function ControlPanel({
         </div>
       </div>
 
-      <div className="csv-section">
-        <label htmlFor="csv-input">CSV Data:</label>
-        <textarea
-          id="csv-input"
-          value={csvData}
-          onChange={(event) => setCsvData(event.target.value)}
-          placeholder={
-            'week,winner,loser,margin,isPlayoff,isSuperBowl\n1,KC,CIN,7,false,false\n1,SF,DAL,10,false,false'
-          }
-          rows={6}
-          aria-label="CSV game results input"
-        />
-        {error && <div className="error-message">{error}</div>}
+      {gameState.phase !== 'season' && (
+        <div className="csv-section">
+          <label htmlFor="csv-input">CSV Data:</label>
+          <textarea
+            id="csv-input"
+            value={csvData}
+            onChange={(event) => setCsvData(event.target.value)}
+            placeholder={
+              'week,winner,loser,margin,isPlayoff,isSuperBowl\n1,KC,CIN,7,false,false\n1,SF,DAL,10,false,false'
+            }
+            rows={6}
+            aria-label="CSV game results input"
+          />
+          {error && <div className="error-message">{error}</div>}
 
-        <div className="button-group">
-          <button
-            onClick={handleApplyCsv}
-            disabled={!csvData.trim()}
-            aria-label="Apply CSV results for current week"
-          >
-            Apply CSV for Week {gameState.week}
-          </button>
+          <div className="button-group">
+            <button
+              onClick={handleApplyCsv}
+              disabled={!csvData.trim()}
+              aria-label="Apply CSV results for current week"
+            >
+              Apply CSV for Week {gameState.week}
+            </button>
+            <button
+              type="button"
+              onClick={handleLoadCsvIntoTable}
+              disabled={!csvData.trim()}
+            >
+              Načíst CSV do tabulky
+            </button>
+            <button onClick={openPreview} aria-label="Open preview window">
+              Open Preview
+            </button>
+            <button onClick={onReset} className="reset-btn" aria-label="Reset game">
+              Reset to Setup
+            </button>
+          </div>
+        </div>
+      )}
+
+      {gameState.phase !== 'season' && (
+        <div className="manual-results">
           <button
             type="button"
-            onClick={handleLoadCsvIntoTable}
-            disabled={!csvData.trim()}
+            className="toggle-manual-btn"
+            onClick={() => {
+              setUseManualEntry((value) => {
+                if (!value && manualRows.length === 0) {
+                  setManualRows([createEmptyRow(gameState.week)]);
+                }
+                return !value;
+              });
+            }}
           >
-            Načíst CSV do tabulky
+            {useManualEntry ? 'Skrýt ruční zadání' : 'Přidat zápasy ručně'}
           </button>
-          <button onClick={openPreview} aria-label="Open preview window">
-            Open Preview
-          </button>
-          <button onClick={onReset} className="reset-btn" aria-label="Reset game">
-            Reset to Setup
-          </button>
-        </div>
-      </div>
 
-      <div className="manual-results">
-        <button
-          type="button"
-          className="toggle-manual-btn"
-          onClick={() => {
-            setUseManualEntry((value) => {
-              if (!value && manualRows.length === 0) {
-                setManualRows([createEmptyRow(gameState.week)]);
-              }
-              return !value;
-            });
-          }}
-        >
-          {useManualEntry ? 'Skrýt ruční zadání' : 'Přidat zápasy ručně'}
-        </button>
-
-        {useManualEntry && (
-          <div className="manual-results-table-wrapper">
-            <table className="manual-results-table">
-              <thead>
-                <tr>
-                  <th>Týden</th>
-                  <th>Vítěz</th>
-                  <th>Poražený</th>
-                  <th>Margin</th>
-                  <th>Playoff</th>
-                  <th>Super Bowl</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {manualRows.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <input
-                        type="number"
-                        min={1}
-                        value={row.week}
-                        onChange={(event) => handleManualRowChange(row.id, { week: event.target.value })}
-                      />
-                    </td>
-                    <td>
-                      <select
-                        value={row.winner}
-                        onChange={(event) => handleManualRowChange(row.id, { winner: event.target.value as TeamId })}
-                      >
-                        <option value="">— vyber —</option>
-                        {NFL_TEAMS.map((team) => (
-                          <option key={team.id} value={team.id}>
-                            {team.city} {team.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <select
-                        value={row.loser}
-                        onChange={(event) => handleManualRowChange(row.id, { loser: event.target.value as TeamId })}
-                      >
-                        <option value="">— vyber —</option>
-                        {NFL_TEAMS.map((team) => (
-                          <option key={team.id} value={team.id}>
-                            {team.city} {team.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        min={0}
-                        value={row.margin}
-                        onChange={(event) => handleManualRowChange(row.id, { margin: event.target.value })}
-                      />
-                    </td>
-                    <td className="manual-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={row.isPlayoff}
-                        onChange={(event) => handleManualRowChange(row.id, { isPlayoff: event.target.checked })}
-                      />
-                    </td>
-                    <td className="manual-checkbox">
-                      <input
-                        type="checkbox"
-                        checked={row.isSuperBowl}
-                        onChange={(event) => handleManualRowChange(row.id, { isSuperBowl: event.target.checked })}
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleRemoveManualRow(row.id)}>
-                        Odebrat
-                      </button>
-                    </td>
+          {useManualEntry && (
+            <div className="manual-results-table-wrapper">
+              <table className="manual-results-table">
+                <thead>
+                  <tr>
+                    <th>Týden</th>
+                    <th>Vítěz</th>
+                    <th>Poražený</th>
+                    <th>Margin</th>
+                    <th>Playoff</th>
+                    <th>Super Bowl</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="manual-results-actions">
-              <button type="button" onClick={handleAddManualRow}>
-                + Přidat zápas
-              </button>
-              <button type="button" onClick={handleApplyManualRows} disabled={!manualRowsValid}>
-                Zapsat zápasy
-              </button>
+                </thead>
+                <tbody>
+                  {manualRows.map((row) => (
+                    <tr key={row.id}>
+                      <td>
+                        <input
+                          type="number"
+                          min={1}
+                          value={row.week}
+                          onChange={(event) => handleManualRowChange(row.id, { week: event.target.value })}
+                        />
+                      </td>
+                      <td>
+                        <select
+                          value={row.winner}
+                          onChange={(event) => handleManualRowChange(row.id, { winner: event.target.value as TeamId })}
+                        >
+                          <option value="">— vyber —</option>
+                          {NFL_TEAMS.map((team) => (
+                            <option key={team.id} value={team.id}>
+                              {team.city} {team.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          value={row.loser}
+                          onChange={(event) => handleManualRowChange(row.id, { loser: event.target.value as TeamId })}
+                        >
+                          <option value="">— vyber —</option>
+                          {NFL_TEAMS.map((team) => (
+                            <option key={team.id} value={team.id}>
+                              {team.city} {team.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          min={0}
+                          value={row.margin}
+                          onChange={(event) => handleManualRowChange(row.id, { margin: event.target.value })}
+                        />
+                      </td>
+                      <td className="manual-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={row.isPlayoff}
+                          onChange={(event) => handleManualRowChange(row.id, { isPlayoff: event.target.checked })}
+                        />
+                      </td>
+                      <td className="manual-checkbox">
+                        <input
+                          type="checkbox"
+                          checked={row.isSuperBowl}
+                          onChange={(event) => handleManualRowChange(row.id, { isSuperBowl: event.target.checked })}
+                        />
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleRemoveManualRow(row.id)}>
+                          Odebrat
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="manual-results-actions">
+                <button type="button" onClick={handleAddManualRow}>
+                  + Přidat zápas
+                </button>
+                <button type="button" onClick={handleApplyManualRows} disabled={!manualRowsValid}>
+                  Zapsat zápasy
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <div className="admin-tools">
         <span className="section-label">Admin Tools</span>

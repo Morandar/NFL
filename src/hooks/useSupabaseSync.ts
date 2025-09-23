@@ -28,9 +28,7 @@ export function useSupabaseSync(
 ): SessionHookResult {
   const isEnabled = SUPABASE_ENABLED;
   const client = useMemo(() => getSupabaseClient(), []);
-  const [sessionId] = useState<string | null>(() =>
-    isEnabled ? resolveSessionId() : null,
-  );
+  const sessionId = 'main';
   const [status, setStatus] = useState<MultiplayerStatus>(() =>
     isEnabled ? 'connecting' : 'disabled',
   );
