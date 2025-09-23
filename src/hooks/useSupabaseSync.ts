@@ -20,7 +20,6 @@ type SessionHookResult = {
   isEnabled: boolean;
 };
 
-const SESSION_STORAGE_KEY = 'nfl-conquest-session-id-v1';
 
 export function useSupabaseSync(
   gameState: GameState,
@@ -143,36 +142,6 @@ export function useSupabaseSync(
   return { sessionId, status, error, isEnabled };
 }
 
-function resolveSessionId(): string {
-  if (typeof window === 'undefined') {
-    return crypto.randomUUID();
-  }
-
-  const url = new URL(window.location.href);
-  const searchParams = url.searchParams;
-  const urlSession = searchParams.get('session');
-  if (urlSession) {
-    persistSessionId(urlSession);
-    return urlSession;
-  }
-
-  const stored = readStoredSessionId();
-  if (stored) {
-    ensureSessionInUrl(url, stored);
-    return stored;
-  }
-
-  const newSession = createSessionId();
-  persistSessionId(newSession);
-  ensureSessionInUrl(url, newSession);
-  return newSession;
-}
-
-function ensureSessionInUrl(url: URL, sessionId: string): void {
-  url.searchParams.set('session', sessionId);
-  const nextUrl = `${url.pathname}?${url.searchParams.toString()}${url.hash}`;
-  window.history.replaceState(null, '', nextUrl);
-}
 
 function createSessionId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -181,22 +150,6 @@ function createSessionId(): string {
   return Math.random().toString(36).slice(2, 14);
 }
 
-function persistSessionId(sessionId: string): void {
-  try {
-    window.localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
-  } catch (error) {
-    console.warn('Failed to persist session id', error);
-  }
-}
-
-function readStoredSessionId(): string | null {
-  try {
-    return window.localStorage.getItem(SESSION_STORAGE_KEY);
-  } catch (error) {
-    console.warn('Failed to read stored session id', error);
-    return null;
-  }
-}
 
 async function fetchSessionState(
   client: GenericClient,

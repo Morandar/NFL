@@ -23,7 +23,6 @@ interface ControlPanelProps {
   onClearHighlight: () => void;
   onExportRegions: () => string;
   onResetRegions: () => void;
-  sessionId: string | null;
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
@@ -47,7 +46,6 @@ export function ControlPanel({
   onClearHighlight,
   onExportRegions,
   onResetRegions,
-  sessionId,
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,

@@ -112,7 +112,7 @@ function App() {
 
   useEffect(() => {
     if (!client) return;
-    const { data: { subscription } } = client.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
     return () => subscription.unsubscribe();
@@ -368,7 +368,6 @@ function App() {
                 onClearHighlight={() => setHighlightPlayerId(null)}
                 onExportRegions={() => JSON.stringify(mapRegions, null, 2)}
                 onResetRegions={handleResetRegions}
-                sessionId={sessionId}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
