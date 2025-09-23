@@ -445,7 +445,6 @@ function App() {
                 onClearHighlight={() => setHighlightPlayerId(null)}
                 onExportRegions={() => JSON.stringify(mapRegions, null, 2)}
                 onResetRegions={handleResetRegions}
-                sessionId={sessionId}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
