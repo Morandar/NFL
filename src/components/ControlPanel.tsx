@@ -26,9 +26,6 @@ interface ControlPanelProps {
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
-  currentUserPlayerId: string | null;
-  onSetCurrentUserPlayerId: (id: string | null) => void;
-  onUpdatePlayerName: (playerId: string, name: string) => void;
   isHost: boolean;
 }
 
@@ -50,9 +47,6 @@ export function ControlPanel({
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
-  currentUserPlayerId,
-  onSetCurrentUserPlayerId,
-  onUpdatePlayerName,
   isHost,
 }: ControlPanelProps) {
   const [csvData, setCsvData] = useState('');
@@ -258,31 +252,6 @@ export function ControlPanel({
         {isMultiplayerEnabled ? (
           <div className="multiplayer-body">
             {multiplayerError && <div className="error-message">{multiplayerError}</div>}
-            <div className="player-selection-row">
-              <span>I am player:</span>
-              <select
-                value={currentUserPlayerId ?? ''}
-                onChange={(event) => onSetCurrentUserPlayerId(event.target.value || null)}
-              >
-                <option value="">— select —</option>
-                {gameState.players.map((player) => (
-                  <option key={player.id} value={player.id}>
-                    {player.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {currentUserPlayerId && (
-              <div className="player-name-row">
-                <span>My name:</span>
-                <input
-                  type="text"
-                  value={gameState.players.find((p) => p.id === currentUserPlayerId)?.name ?? ''}
-                  onChange={(event) => onUpdatePlayerName(currentUserPlayerId, event.target.value)}
-                  maxLength={20}
-                />
-              </div>
-            )}
             {isHost && (
               <button type="button" onClick={onReset} className="reset-btn" style={{ marginTop: '0.5rem' }}>
                 Reset Game

@@ -40,6 +40,7 @@ export type GameState = {
   settings: Settings;
   log: string[];
   hostId: string | null;
+  connectedUsers: string[];
 };
 
 export type ResultRow = {

@@ -35,6 +35,7 @@ const initialState: GameState = {
   },
   log: [],
   hostId: null,
+  connectedUsers: [],
 };
 
 const TEAM_IDS: TeamId[] = [
@@ -115,6 +116,11 @@ function App() {
   const handleLogin = (name: string) => {
     setUsername(name);
     localStorage.setItem('nfl-username', name);
+    // Add to connected users if not already
+    setGameState(prev => ({
+      ...prev,
+      connectedUsers: prev.connectedUsers.includes(name) ? prev.connectedUsers : [...prev.connectedUsers, name]
+    }));
   };
 
   useEffect(() => {
@@ -329,13 +335,16 @@ function App() {
       </header>
 
       <main className="app-content">
-        {gameState.phase === 'setup' && gameState.players.length > 0 && (
+        {gameState.phase === 'setup' && gameState.players.length > 0 && (!currentUserPlayerId || isHost) && (
           <JoinScreen
             availablePlayers={gameState.players.filter(p => !p.userId)}
             onClaimPlayer={handleClaimPlayer}
             isHost={!!isHost}
             allClaimed={gameState.players.every(p => p.userId)}
             onStartDraft={handleStartDraft}
+            connectedUsers={gameState.connectedUsers}
+            assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
+            onAssignPlayer={handleClaimPlayer}
           />
         )}
         {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
@@ -376,9 +385,6 @@ function App() {
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
-                currentUserPlayerId={currentUserPlayerId}
-                onSetCurrentUserPlayerId={setCurrentUserPlayerId}
-                onUpdatePlayerName={handleUpdatePlayerName}
                 isHost={!!isHost}
               />
             </div>
