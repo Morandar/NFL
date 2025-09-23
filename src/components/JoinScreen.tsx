@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Player } from '../state/types';
+import { Player, Settings } from '../state/types';
 
 interface JoinScreenProps {
   availablePlayers: Player[];
   onClaimPlayer: (playerId: string, name: string) => void;
+  isHost: boolean;
+  allClaimed: boolean;
+  onStartDraft: (players: Player[], settings: Settings) => void;
 }
 
-export function JoinScreen({ availablePlayers, onClaimPlayer }: JoinScreenProps) {
+export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed, onStartDraft }: JoinScreenProps) {
   const [playerNames, setPlayerNames] = useState<Record<string, string>>({});
 
   const handleClaim = (playerId: string) => {
@@ -43,6 +46,11 @@ export function JoinScreen({ availablePlayers, onClaimPlayer }: JoinScreenProps)
             </div>
           ))}
         </div>
+      )}
+      {isHost && allClaimed && (
+        <button onClick={() => onStartDraft([], { picksPerPlayer: 1, useMarginRules: false, playoffBoost: false, superBowlSweep: false, lockDivisionRule: false })}>
+          Start Draft
+        </button>
       )}
     </div>
   );

@@ -329,13 +329,16 @@ function App() {
       </header>
 
       <main className="app-content">
-        {gameState.phase === 'setup' && !isHost && (
+        {gameState.phase === 'setup' && gameState.players.length > 0 && (
           <JoinScreen
             availablePlayers={gameState.players.filter(p => !p.userId)}
             onClaimPlayer={handleClaimPlayer}
+            isHost={!!isHost}
+            allClaimed={gameState.players.every(p => p.userId)}
+            onStartDraft={handleStartDraft}
           />
         )}
-        {gameState.phase === 'setup' && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
+        {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
 
         {gameState.phase === 'draft' && (
            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} currentUserPlayerId={currentUserPlayerId} />
