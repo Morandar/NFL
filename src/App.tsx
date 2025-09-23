@@ -36,6 +36,7 @@ const initialState: GameState = {
   log: [],
   hostId: null,
   connectedUsers: [],
+  messages: [],
 };
 
 const TEAM_IDS: TeamId[] = [
@@ -120,6 +121,14 @@ function App() {
     setGameState(prev => ({
       ...prev,
       connectedUsers: prev.connectedUsers.includes(name) ? prev.connectedUsers : [...prev.connectedUsers, name]
+    }));
+  };
+
+  const handleSendMessage = (text: string) => {
+    if (!username || !text.trim()) return;
+    setGameState(prev => ({
+      ...prev,
+      messages: [...prev.messages, { user: username, text: text.trim(), timestamp: new Date().toISOString() }]
     }));
   };
 
@@ -345,6 +354,9 @@ function App() {
             connectedUsers={gameState.connectedUsers}
             assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
             onAssignPlayer={handleClaimPlayer}
+            messages={gameState.messages}
+            onSendMessage={handleSendMessage}
+            players={gameState.players}
           />
         )}
         {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
