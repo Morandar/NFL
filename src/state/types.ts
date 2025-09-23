@@ -18,6 +18,7 @@ export type Player = {
   color: string;
   teamsOwned: TeamId[];
   homeTeamId?: TeamId | null;
+  userId?: string | null;
 };
 
 export type Settings = {
@@ -38,6 +39,7 @@ export type GameState = {
   week: number;
   settings: Settings;
   log: string[];
+  hostId: string | null;
 };
 
 export type ResultRow = {

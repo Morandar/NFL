@@ -34,6 +34,7 @@ export function SetupPanel({ onStartDraft }: SetupPanelProps) {
         name: playerName.trim(),
         color: RANDOM_COLORS[players.length % RANDOM_COLORS.length],
         teamsOwned: [],
+        userId: null,
       };
       setPlayers([...players, newPlayer]);
       setPlayerName('');

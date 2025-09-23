@@ -9,6 +9,7 @@ import { ControlPanel } from './components/ControlPanel';
 import { StandingsCard } from './components/StandingsCard';
 import { TeamOwnershipCard } from './components/TeamOwnershipCard';
 import { Login } from './components/Login';
+import { JoinScreen } from './components/JoinScreen';
 import { applyWeekResults } from './logic/conquest';
 import { checkInstantWin } from './logic/endgame';
 import { TEAM_COLORS } from './data/teamColors';
@@ -35,6 +36,7 @@ const initialState: GameState = {
     lockDivisionRule: false,
   },
   log: [],
+  hostId: null,
 };
 
 const TEAM_IDS: TeamId[] = [
@@ -116,10 +118,27 @@ function App() {
     return () => subscription.unsubscribe();
   }, [client]);
 
+  useEffect(() => {
+    if (gameState.hostId === null && user && gameState.players.length === 0) {
+      setGameState(prev => ({...prev, hostId: user.id}));
+    }
+  }, [gameState.hostId, user, gameState.players.length]);
+
+  useEffect(() => {
+    if (user) {
+      const myPlayer = gameState.players.find(p => p.userId === user.id);
+      setCurrentUserPlayerId(myPlayer?.id || null);
+    } else {
+      setCurrentUserPlayerId(null);
+    }
+  }, [user, gameState.players]);
+
   const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
     setGameState,
   );
+
+  const isHost = user && gameState.hostId === user.id;
 
   useEffect(() => {
     saveState(gameState);
@@ -281,6 +300,14 @@ function App() {
     }));
   };
 
+  const handleClaimPlayer = (playerId: string, name: string) => {
+    if (!user) return;
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, name, userId: user.id } : p)),
+    }));
+  };
+
   const highlightedPlayer = highlightPlayerId
     ? gameState.players.find((player) => player.id === highlightPlayerId)
     : undefined;
@@ -300,7 +327,13 @@ function App() {
       </header>
 
       <main className="app-content">
-        {gameState.phase === 'setup' && <SetupPanel onStartDraft={handleStartDraft} />}
+        {gameState.phase === 'setup' && !isHost && (
+          <JoinScreen
+            availablePlayers={gameState.players.filter(p => !p.userId)}
+            onClaimPlayer={handleClaimPlayer}
+          />
+        )}
+        {gameState.phase === 'setup' && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
 
         {gameState.phase === 'draft' && (
            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} currentUserPlayerId={currentUserPlayerId} />
