@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Home team badge">
+  <defs>
+    <linearGradient id="turretGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f5f7ff" stop-opacity="0.92" />
+      <stop offset="100%" stop-color="#dadef2" stop-opacity="0.72" />
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="22" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.65)" stroke-width="2" />
+  <path d="M24 8 L10 20 V38 H20 V28 H28 V38 H38 V20 Z" fill="url(#turretGradient)" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" stroke-linejoin="round" />
+</svg>

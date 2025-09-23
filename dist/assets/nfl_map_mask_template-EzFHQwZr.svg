@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1400" width="2400" height="1400" role="img" aria-label="NFL Map Mask Template">
+
+<!--
+  NFL Map Mask Template (SVG)
+  • Otevři v Inkscape/Illustrator a překresli obrysy regionů podle podkladu.
+  • Každý tým má <g id="TEAM">, do kterého vlož path(e) pro jeho region.
+-->
+<style>
+  .region path { fill: transparent; stroke: #444; stroke-width: 2; }
+  .region:hover path { stroke: #111; }
+</style>
+
+  <g id="ARI" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="ATL" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="BAL" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="BUF" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="CAR" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="CHI" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="CIN" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="CLE" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="DAL" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="DEN" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="DET" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="GB" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="HOU" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="IND" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="JAX" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="KC" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="LV" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="LAC" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="LAR" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="MIA" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="MIN" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="NE" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="NO" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="NYG" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="NYJ" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="PHI" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="PIT" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="SEA" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="SF" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="TB" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="TEN" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+  <g id="WAS" class="region">
+    <!-- TODO: nahraď tento placeholder skutečným obrysem -->
+    <path d="M 10 10 L 11 10" />
+  </g>
+</svg>

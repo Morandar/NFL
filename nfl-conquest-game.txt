@@ -1,0 +1,41 @@
+Let me create this comprehensive NFL Conquest Map game for you. I'll build it step by step with all the required components.
+
+## Project Structure Overview
+
+```
+nfl-conquest-map/
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── .eslintrc.cjs
+├── .prettierrc
+├── index.html
+├── preview.html
+├── src/
+│   ├── main.tsx
+│   ├── preview.tsx
+│   ├── App.tsx
+│   ├── styles.css
+│   ├── assets/
+│   │   ├── nfl_conquest_base_washed.png
+│   │   └── nfl_map_mask.svg
+│   ├── components/
+│   │   ├── SetupPanel.tsx
+│   │   ├── DraftBoard.tsx
+│   │   ├── MapBoard.tsx
+│   │   ├── ControlPanel.tsx
+│   │   └── StandingsCard.tsx
+│   ├── data/
+│   │   ├── nflTeams.ts
+│   │   └── teamColors.ts
+│   ├── logic/
+│   │   ├── conquest.ts
+│   │   ├── standings.ts
+│   │   └── endgame.ts
+│   └── state/
+│       ├── types.ts
+│       └── persistence.ts
+└── README.md
+```
+
+I'll now create each file with the complete implementation:

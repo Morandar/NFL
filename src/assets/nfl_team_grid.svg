@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1616" height="676" viewBox="0 0 1616 676" role="img" aria-label="NFL Team Grid">
+  <style>
+    .tile { fill: #1b1d24; stroke: #242833; stroke-width: 2; rx: 18; ry: 18; }
+    .logo-bg { fill: rgba(9, 11, 18, 0.55); rx: 12; ry: 12; }
+    .abbr { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; font-size: 26px; font-weight: 700; fill: #f5f7ff; }
+    .owner { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; font-size: 18px; font-weight: 500; fill: #c9cfe3; }
+  </style>
+    <g id="ARI" class="region" transform="translate(32 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="ARI-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="ARI-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="ARI-abbr" x="80" y="48" dominant-baseline="middle">ARI</text>
+      <text class="owner" id="ARI-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="ATL" class="region" transform="translate(228 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="ATL-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="ATL-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="ATL-abbr" x="80" y="48" dominant-baseline="middle">ATL</text>
+      <text class="owner" id="ATL-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="BAL" class="region" transform="translate(424 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="BAL-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="BAL-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="BAL-abbr" x="80" y="48" dominant-baseline="middle">BAL</text>
+      <text class="owner" id="BAL-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="BUF" class="region" transform="translate(620 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="BUF-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="BUF-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="BUF-abbr" x="80" y="48" dominant-baseline="middle">BUF</text>
+      <text class="owner" id="BUF-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="CAR" class="region" transform="translate(816 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="CAR-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="CAR-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="CAR-abbr" x="80" y="48" dominant-baseline="middle">CAR</text>
+      <text class="owner" id="CAR-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="CHI" class="region" transform="translate(1012 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="CHI-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="CHI-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="CHI-abbr" x="80" y="48" dominant-baseline="middle">CHI</text>
+      <text class="owner" id="CHI-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="CIN" class="region" transform="translate(1208 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="CIN-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="CIN-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="CIN-abbr" x="80" y="48" dominant-baseline="middle">CIN</text>
+      <text class="owner" id="CIN-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="CLE" class="region" transform="translate(1404 32)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="CLE-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="CLE-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="CLE-abbr" x="80" y="48" dominant-baseline="middle">CLE</text>
+      <text class="owner" id="CLE-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="DAL" class="region" transform="translate(32 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="DAL-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="DAL-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="DAL-abbr" x="80" y="48" dominant-baseline="middle">DAL</text>
+      <text class="owner" id="DAL-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="DEN" class="region" transform="translate(228 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="DEN-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="DEN-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="DEN-abbr" x="80" y="48" dominant-baseline="middle">DEN</text>
+      <text class="owner" id="DEN-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="DET" class="region" transform="translate(424 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="DET-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="DET-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="DET-abbr" x="80" y="48" dominant-baseline="middle">DET</text>
+      <text class="owner" id="DET-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="GB" class="region" transform="translate(620 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="GB-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="GB-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="GB-abbr" x="80" y="48" dominant-baseline="middle">GB</text>
+      <text class="owner" id="GB-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="HOU" class="region" transform="translate(816 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="HOU-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="HOU-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="HOU-abbr" x="80" y="48" dominant-baseline="middle">HOU</text>
+      <text class="owner" id="HOU-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="IND" class="region" transform="translate(1012 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="IND-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="IND-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="IND-abbr" x="80" y="48" dominant-baseline="middle">IND</text>
+      <text class="owner" id="IND-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="JAX" class="region" transform="translate(1208 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="JAX-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="JAX-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="JAX-abbr" x="80" y="48" dominant-baseline="middle">JAX</text>
+      <text class="owner" id="JAX-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="KC" class="region" transform="translate(1404 174)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="KC-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="KC-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="KC-abbr" x="80" y="48" dominant-baseline="middle">KC</text>
+      <text class="owner" id="KC-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="LV" class="region" transform="translate(32 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="LV-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="LV-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="LV-abbr" x="80" y="48" dominant-baseline="middle">LV</text>
+      <text class="owner" id="LV-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="LAC" class="region" transform="translate(228 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="LAC-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="LAC-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="LAC-abbr" x="80" y="48" dominant-baseline="middle">LAC</text>
+      <text class="owner" id="LAC-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="LAR" class="region" transform="translate(424 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="LAR-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="LAR-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="LAR-abbr" x="80" y="48" dominant-baseline="middle">LAR</text>
+      <text class="owner" id="LAR-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="MIA" class="region" transform="translate(620 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="MIA-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="MIA-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="MIA-abbr" x="80" y="48" dominant-baseline="middle">MIA</text>
+      <text class="owner" id="MIA-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="MIN" class="region" transform="translate(816 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="MIN-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="MIN-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="MIN-abbr" x="80" y="48" dominant-baseline="middle">MIN</text>
+      <text class="owner" id="MIN-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="NE" class="region" transform="translate(1012 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="NE-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="NE-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="NE-abbr" x="80" y="48" dominant-baseline="middle">NE</text>
+      <text class="owner" id="NE-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="NO" class="region" transform="translate(1208 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="NO-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="NO-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="NO-abbr" x="80" y="48" dominant-baseline="middle">NO</text>
+      <text class="owner" id="NO-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="NYG" class="region" transform="translate(1404 316)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="NYG-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="NYG-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="NYG-abbr" x="80" y="48" dominant-baseline="middle">NYG</text>
+      <text class="owner" id="NYG-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="NYJ" class="region" transform="translate(32 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="NYJ-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="NYJ-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="NYJ-abbr" x="80" y="48" dominant-baseline="middle">NYJ</text>
+      <text class="owner" id="NYJ-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="PHI" class="region" transform="translate(228 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="PHI-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="PHI-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="PHI-abbr" x="80" y="48" dominant-baseline="middle">PHI</text>
+      <text class="owner" id="PHI-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="PIT" class="region" transform="translate(424 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="PIT-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="PIT-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="PIT-abbr" x="80" y="48" dominant-baseline="middle">PIT</text>
+      <text class="owner" id="PIT-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="SEA" class="region" transform="translate(620 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="SEA-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="SEA-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="SEA-abbr" x="80" y="48" dominant-baseline="middle">SEA</text>
+      <text class="owner" id="SEA-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="SF" class="region" transform="translate(816 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="SF-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="SF-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="SF-abbr" x="80" y="48" dominant-baseline="middle">SF</text>
+      <text class="owner" id="SF-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="TB" class="region" transform="translate(1012 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="TB-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="TB-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="TB-abbr" x="80" y="48" dominant-baseline="middle">TB</text>
+      <text class="owner" id="TB-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="TEN" class="region" transform="translate(1208 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="TEN-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="TEN-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="TEN-abbr" x="80" y="48" dominant-baseline="middle">TEN</text>
+      <text class="owner" id="TEN-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+    <g id="WAS" class="region" transform="translate(1404 458)">
+      <rect class="tile" width="180" height="126" />
+      <rect id="WAS-logo" class="logo-bg" x="16" y="22" width="48" height="48" />
+      <image id="WAS-logo-img" x="16" y="22" width="48" height="48" href="" />
+      <text class="abbr" id="WAS-abbr" x="80" y="48" dominant-baseline="middle">WAS</text>
+      <text class="owner" id="WAS-owner" x="80" y="82" dominant-baseline="middle">Volné</text>
+    </g>
+  <text x="808" y="652" text-anchor="middle" font-family="'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="20" fill="#8b93a7">Tip: otevři soubor `nfl_team_grid.svg` pro přesnou editaci barev nebo tisk draft boardu.</text>
+</svg>

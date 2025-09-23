@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2688 1242" width="2688" height="1242">
+  <style>
+    .region circle {
+      fill: transparent;
+      stroke: #444;
+      stroke-width: 18;
+      pointer-events: all;
+      transition: fill 0.3s ease, stroke-width 0.2s ease;
+    }
+    .region:hover circle {
+      stroke-width: 24;
+    }
+  </style>
+  <g id="ARI" class="region" aria-label="ARI">
+    <circle cx="728.1" cy="742.5" r="52" />
+  </g>
+  <g id="ATL" class="region" aria-label="ATL">
+    <circle cx="1752.2" cy="733.2" r="52" />
+  </g>
+  <g id="BAL" class="region" aria-label="BAL">
+    <circle cx="2037.7" cy="507.4" r="52" />
+  </g>
+  <g id="BUF" class="region" aria-label="BUF">
+    <circle cx="1958.6" cy="364.6" r="52" />
+  </g>
+  <g id="CAR" class="region" aria-label="CAR">
+    <circle cx="1882.3" cy="673.1" r="52" />
+  </g>
+  <g id="CHI" class="region" aria-label="CHI">
+    <circle cx="1633.8" cy="401.8" r="52" />
+  </g>
+  <g id="CIN" class="region" aria-label="CIN">
+    <circle cx="1747.6" cy="514.9" r="52" />
+  </g>
+  <g id="CLE" class="region" aria-label="CLE">
+    <circle cx="1851.1" cy="416.4" r="52" />
+  </g>
+  <g id="DAL" class="region" aria-label="DAL">
+    <circle cx="1285.4" cy="774.4" r="52" />
+  </g>
+  <g id="DEN" class="region" aria-label="DEN">
+    <circle cx="994.2" cy="488.4" r="52" />
+  </g>
+  <g id="DET" class="region" aria-label="DET">
+    <circle cx="1801.7" cy="382.3" r="52" />
+  </g>
+  <g id="GB" class="region" aria-label="GB">
+    <circle cx="1617.3" cy="293.9" r="52" />
+  </g>
+  <g id="HOU" class="region" aria-label="HOU">
+    <circle cx="1347.3" cy="899.6" r="52" />
+  </g>
+  <g id="IND" class="region" aria-label="IND">
+    <circle cx="1687.1" cy="487.7" r="52" />
+  </g>
+  <g id="JAX" class="region" aria-label="JAX">
+    <circle cx="1853.4" cy="873.5" r="52" />
+  </g>
+  <g id="KC" class="region" aria-label="KC">
+    <circle cx="1381.4" cy="516.8" r="52" />
+  </g>
+  <g id="LV" class="region" aria-label="LV">
+    <circle cx="620.7" cy="637.8" r="52" />
+  </g>
+  <g id="LAC" class="region" aria-label="LAC">
+    <circle cx="471.6" cy="751.5" r="46" />
+  </g>
+  <g id="LAR" class="region" aria-label="LAR">
+    <circle cx="542.4" cy="693.4" r="46" />
+  </g>
+  <g id="MIA" class="region" aria-label="MIA">
+    <circle cx="1904.8" cy="1052" r="52" />
+  </g>
+  <g id="MIN" class="region" aria-label="MIN">
+    <circle cx="1426.4" cy="274.6" r="52" />
+  </g>
+  <g id="NE" class="region" aria-label="NE">
+    <circle cx="2234.6" cy="392.4" r="52" />
+  </g>
+  <g id="NO" class="region" aria-label="NO">
+    <circle cx="1543.1" cy="888.7" r="52" />
+  </g>
+  <g id="NYG" class="region" aria-label="NYG">
+    <circle cx="2101.3" cy="422.7" r="46" />
+  </g>
+  <g id="NYJ" class="region" aria-label="NYJ">
+    <circle cx="2171.3" cy="469.5" r="46" />
+  </g>
+  <g id="PHI" class="region" aria-label="PHI">
+    <circle cx="2091.1" cy="482" r="52" />
+  </g>
+  <g id="PIT" class="region" aria-label="PIT">
+    <circle cx="1913" cy="459.7" r="52" />
+  </g>
+  <g id="SEA" class="region" aria-label="SEA">
+    <circle cx="358.1" cy="167.4" r="52" />
+  </g>
+  <g id="SF" class="region" aria-label="SF">
+    <circle cx="371.3" cy="584.1" r="52" />
+  </g>
+  <g id="TB" class="region" aria-label="TB">
+    <circle cx="1821.6" cy="969.5" r="52" />
+  </g>
+  <g id="TEN" class="region" aria-label="TEN">
+    <circle cx="1664.8" cy="634.7" r="52" />
+  </g>
+  <g id="WAS" class="region" aria-label="WAS">
+    <circle cx="2028.8" cy="522.6" r="52" />
+  </g>
+
+</svg>
