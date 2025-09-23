@@ -170,7 +170,17 @@ function App() {
     persistRegions(mapRegions);
   }, [mapRegions]);
 
-  const handleStartDraft = (players: Player[], settings: Settings) => {
+  const handleAddPlayers = (players: Player[], settings: Settings) => {
+    setGameState(prev => ({
+      ...prev,
+      players,
+      settings,
+    }));
+  };
+
+  const handleStartDraft = () => {
+    const players = gameState.players;
+    const settings = gameState.settings;
     const shuffled = [...players].sort(() => Math.random() - 0.5);
     const draftOrder: string[] = [];
 
@@ -187,7 +197,6 @@ function App() {
       phase: 'draft',
       players,
       draftOrder,
-      settings,
       currentPickIndex: 0,
       snakeForward: true,
       log: ['Draft started!'],
@@ -361,7 +370,7 @@ function App() {
             players={gameState.players}
           />
         )}
-        {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onStartDraft={handleStartDraft} />}
+        {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onAddPlayers={handleAddPlayers} />}
         {gameState.phase === 'setup' && !isHost && gameState.players.length === 0 && (
           <div className="waiting-screen">
             <h2>Čekání na hosta</h2>

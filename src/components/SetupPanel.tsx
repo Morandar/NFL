@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Player, Settings } from '../state/types';
 
 interface SetupPanelProps {
-  onStartDraft: (players: Player[], settings: Settings) => void;
+  onAddPlayers: (players: Player[], settings: Settings) => void;
 }
 
 const RANDOM_COLORS = [
@@ -16,7 +16,7 @@ const RANDOM_COLORS = [
   '#48DBFB',
 ];
 
-export function SetupPanel({ onStartDraft }: SetupPanelProps) {
+export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
   const [players, setPlayers] = useState<Player[]>([]);
   const [playerName, setPlayerName] = useState('');
   const [settings, setSettings] = useState<Settings>({
@@ -148,8 +148,8 @@ export function SetupPanel({ onStartDraft }: SetupPanelProps) {
         </label>
       </div>
 
-      <button className="start-draft-btn" onClick={() => onStartDraft(players, settings)} disabled={!canStartDraft} aria-label="Start draft">
-        Start Draft
+      <button className="start-draft-btn" onClick={() => onAddPlayers(players, settings)} disabled={!canStartDraft} aria-label="Add players">
+        Add Players
       </button>
     </div>
   );
