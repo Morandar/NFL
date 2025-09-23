@@ -23,6 +23,7 @@ interface ControlPanelProps {
   onClearHighlight: () => void;
   onExportRegions: () => string;
   onResetRegions: () => void;
+  sessionId: string | null;
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
@@ -44,6 +45,7 @@ export function ControlPanel({
   onClearHighlight,
   onExportRegions,
   onResetRegions,
+  sessionId,
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
@@ -346,7 +348,7 @@ export function ControlPanel({
         </div>
       </div>
 
-      {gameState.phase !== 'season' && (
+      {gameState.phase !== 'season' && isHost && (
         <div className="csv-section">
           <label htmlFor="csv-input">CSV Data:</label>
           <textarea
@@ -386,7 +388,7 @@ export function ControlPanel({
         </div>
       )}
 
-      {gameState.phase !== 'season' && (
+      {gameState.phase !== 'season' && isHost && (
         <div className="manual-results">
           <button
             type="button"
@@ -498,7 +500,8 @@ export function ControlPanel({
         </div>
       )}
 
-      <div className="admin-tools">
+      {isHost && (
+        <div className="admin-tools">
         <span className="section-label">Admin Tools</span>
         <div className="admin-actions">
           <button type="button" className={isAdminMode ? 'active' : ''} onClick={onToggleAdmin}>
@@ -525,6 +528,7 @@ export function ControlPanel({
           </div>
         )}
       </div>
+      )}
 
       <div className="log-section">
         <h4>Game Log</h4>

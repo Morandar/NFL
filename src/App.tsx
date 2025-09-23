@@ -155,12 +155,12 @@ function App() {
     }
   }, [username, gameState.players]);
 
-  const { status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
+  const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
     setGameState,
   );
 
-  const isHost = username && gameState.hostId === username;
+  const isHost = username && gameState.connectedUsers[0] === username;
 
   useEffect(() => {
     saveState(gameState);
@@ -437,6 +437,7 @@ function App() {
                 onClearHighlight={() => setHighlightPlayerId(null)}
                 onExportRegions={() => JSON.stringify(mapRegions, null, 2)}
                 onResetRegions={handleResetRegions}
+                sessionId={sessionId}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
