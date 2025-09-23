@@ -133,7 +133,7 @@ function App() {
     }
   }, [user, gameState.players]);
 
-  const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
+  const { status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
     setGameState,
   );
