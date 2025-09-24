@@ -395,8 +395,8 @@ export function ControlPanel({
         </div>
       )}
 
-      {gameState.phase !== 'season' && isHost && (
-        <div className="manual-results">
+      {isHost && (
+         <div className="manual-results">
           <button
             type="button"
             className="toggle-manual-btn"
