@@ -320,7 +320,7 @@ export function ControlPanel({
           onChange={(event) => onSelectTeam(event.target.value ? (event.target.value as TeamId) : null)}
         >
           <option value="">— žádný —</option>
-          {NFL_TEAMS.map((team) => (
+          {[...NFL_TEAMS].sort((a, b) => `${a.city} ${a.name}`.localeCompare(`${b.city} ${b.name}`)).map((team) => (
             <option key={team.id} value={team.id}>
               {team.city} {team.name}
             </option>
