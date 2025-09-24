@@ -18,7 +18,6 @@ const RANDOM_COLORS = [
 
 export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
   const [players, setPlayers] = useState<Player[]>([]);
-  const [playerName, setPlayerName] = useState('');
   const [settings, setSettings] = useState<Settings>({
     picksPerPlayer: 1,
     useMarginRules: false,
@@ -28,16 +27,15 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
   });
 
   const addPlayer = () => {
-    if (playerName.trim() && players.length < 8) {
+    if (players.length < 8) {
       const newPlayer: Player = {
         id: `player-${Date.now()}`,
-        name: playerName.trim(),
+        name: `Player ${players.length + 1}`,
         color: RANDOM_COLORS[players.length % RANDOM_COLORS.length],
         teamsOwned: [],
         userId: null,
       };
       setPlayers([...players, newPlayer]);
-      setPlayerName('');
     }
   };
 
@@ -53,24 +51,13 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
 
       <div className="section">
         <h3>Add Players (2-8)</h3>
-        <div className="input-group">
-          <input
-            type="text"
-            value={playerName}
-            onChange={(event) => setPlayerName(event.target.value)}
-            onKeyPress={(event) => event.key === 'Enter' && addPlayer()}
-            placeholder="Player name"
-            maxLength={20}
-            aria-label="Player name"
-          />
-          <button
-            onClick={addPlayer}
-            disabled={!playerName.trim() || players.length >= 8}
-            aria-label="Add player"
-          >
-            Add Player
-          </button>
-        </div>
+        <button
+          onClick={addPlayer}
+          disabled={players.length >= 8}
+          aria-label="Add player"
+        >
+          Add Player
+        </button>
 
         <div className="players-list">
           {players.map((player) => (

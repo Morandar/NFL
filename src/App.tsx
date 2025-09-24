@@ -338,11 +338,11 @@ function App() {
   };
 
 
-  const handleClaimPlayer = (playerId: string, name: string) => {
+  const handleClaimPlayer = (playerId: string) => {
     if (!username) return;
     setGameState((prev) => ({
       ...prev,
-      players: prev.players.map((p) => (p.id === playerId ? { ...p, name, userId: username } : p)),
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, name: username, userId: username } : p)),
     }));
   };
 
