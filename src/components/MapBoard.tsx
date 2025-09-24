@@ -255,9 +255,9 @@ export function MapBoard({
                   r={region.radius}
                   fill={fillColor}
                   fillOpacity={fillOpacity}
-                  stroke={isSelected ? '#FFFFFF' : homePlayer ? '#FFD700' : strokeColor}
-                  strokeWidth={isSelected ? strokeWidth + 2 : homePlayer ? strokeWidth + 4 : strokeWidth}
-                  strokeDasharray={strokeDasharray}
+                  stroke={isSelected ? '#FFFFFF' : strokeColor}
+                  strokeWidth={isSelected ? strokeWidth + 2 : homePlayer ? strokeWidth + 2 : strokeWidth}
+                  strokeDasharray={homePlayer ? '8 4' : strokeDasharray}
                   onMouseDown={(event) => handleMouseDown(event, region.id)}
                   onMouseEnter={() => handleMouseEnter(region.id)}
                   onMouseLeave={handleMouseLeave}
