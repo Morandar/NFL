@@ -19,6 +19,17 @@ import { useSupabaseSync } from './hooks/useSupabaseSync';
 import { getSupabaseClient } from './lib/supabaseClient';
 import './styles.css';
 
+const RANDOM_COLORS = [
+  '#FF6B6B',
+  '#4ECDC4',
+  '#45B7D1',
+  '#96CEB4',
+  '#FECA57',
+  '#FF9FF3',
+  '#54A0FF',
+  '#48DBFB',
+];
+
 const initialState: GameState = {
   phase: 'setup',
   players: [],
@@ -321,6 +332,19 @@ function App() {
     }));
   };
 
+  const handleAddPlayer = () => {
+    const newPlayer: Player = {
+      id: `player-${Date.now()}`,
+      name: `Player ${gameState.players.length + 1}`,
+      color: RANDOM_COLORS[gameState.players.length % RANDOM_COLORS.length],
+      teamsOwned: [],
+    };
+    setGameState((prev) => ({
+      ...prev,
+      players: [...prev.players, newPlayer],
+    }));
+  };
+
   const handleUpdatePlayerName = (playerId: string, name: string) => {
     setGameState((prev) => ({
       ...prev,
@@ -432,6 +456,7 @@ function App() {
             onAssignPlayer={handleClaimPlayer}
             onRemovePlayer={handleRemovePlayer}
             onUnclaimPlayer={handleUnclaimPlayer}
+            onAddPlayer={handleAddPlayer}
             messages={gameState.messages}
             onSendMessage={handleSendMessage}
           />

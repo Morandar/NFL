@@ -12,11 +12,12 @@ interface JoinScreenProps {
   onAssignPlayer: (playerId: string, userId: string) => void;
   onRemovePlayer: (playerId: string) => void;
   onUnclaimPlayer: (playerId: string) => void;
+  onAddPlayer: () => void;
   messages: { user: string; text: string; timestamp: string }[];
   onSendMessage: (text: string) => void;
 }
 
-export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, onUnclaimPlayer, messages, onSendMessage }: JoinScreenProps) {
+export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, onUnclaimPlayer, onAddPlayer, messages, onSendMessage }: JoinScreenProps) {
   const [chatMessage, setChatMessage] = useState('');
 
   const handleClaim = (playerId: string) => {
@@ -89,6 +90,11 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
           </div>
         ))}
       </div>
+      {isHost && (
+        <div style={{ marginTop: '1rem' }}>
+          <button onClick={onAddPlayer}>Přidat slot</button>
+        </div>
+      )}
       {isHost && allClaimed && (
         <button onClick={() => onStartDraft([], { picksPerPlayer: 1, useMarginRules: false, playoffBoost: false, superBowlSweep: false, lockDivisionRule: false })}>
           Start Draft
