@@ -353,6 +353,13 @@ function App() {
     }));
   };
 
+  const handleAssignPlayer = (playerId: string, userId: string | undefined) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, userId, name: userId || p.name } : p)),
+    }));
+  };
+
   const handleReset = () => {
     clearState();
     setGameState({
@@ -502,6 +509,7 @@ function App() {
                 onSetCurrentUserPlayerId={setCurrentUserPlayerId}
                 onUpdatePlayerName={handleUpdatePlayerName}
                 onRemovePlayer={handleRemovePlayer}
+                onAssignPlayer={handleAssignPlayer}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}

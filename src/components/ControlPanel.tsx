@@ -32,6 +32,7 @@ interface ControlPanelProps {
   onSetCurrentUserPlayerId: (id: string | null) => void;
   onUpdatePlayerName: (playerId: string, name: string) => void;
   onRemovePlayer: (playerId: string) => void;
+  onAssignPlayer: (playerId: string, userId: string | undefined) => void;
   isHost: boolean;
 }
 
@@ -59,6 +60,7 @@ export function ControlPanel({
   onSetCurrentUserPlayerId,
   onUpdatePlayerName,
   onRemovePlayer,
+  onAssignPlayer,
   isHost,
 }: ControlPanelProps) {
   const [csvData, setCsvData] = useState('');
@@ -300,7 +302,26 @@ export function ControlPanel({
                       {gameState.players.map((player) => (
                         <div key={player.id} className="player-manage-row" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                           <span className="color-dot" style={{ backgroundColor: player.color }} />
-                          <span>{player.name}</span>
+                          <input
+                            type="text"
+                            value={player.name}
+                            onChange={(e) => onUpdatePlayerName(player.id, e.target.value)}
+                            style={{ flex: 1 }}
+                          />
+                          <select
+                            value={player.userId || ''}
+                            onChange={(e) => {
+                              const newUserId = e.target.value || undefined;
+                              onAssignPlayer(player.id, newUserId);
+                            }}
+                          >
+                            <option value="">Nepřiřazeno</option>
+                            {gameState.connectedUsers.map((user) => (
+                              <option key={user} value={user}>
+                                {user}
+                              </option>
+                            ))}
+                          </select>
                           <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
                         </div>
                       ))}
