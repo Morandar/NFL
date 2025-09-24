@@ -32,6 +32,11 @@ export function applyRow(state: GameState, row: ResultRow): GameState {
     }
   }
 
+  if (winnerOwner && !loserOwner) {
+    newState.ownership[row.loser] = winnerOwner;
+    newState.log.push(`${row.winner} captured neutral ${row.loser}`);
+  }
+
   if (!winnerOwner && loserOwner) {
     if (isHomeProtected(row.loser, loserOwner)) {
       newState.log.push(

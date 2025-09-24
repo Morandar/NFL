@@ -245,6 +245,8 @@ export function MapBoard({
             const iconX = region.cx - iconSize / 2;
             const iconY = region.cy - iconSize / 2;
 
+            const homePlayer = gameState.players.find((p) => p.homeTeamId === region.id);
+
             return (
               <g key={region.id}>
                 <circle
@@ -253,8 +255,8 @@ export function MapBoard({
                   r={region.radius}
                   fill={fillColor}
                   fillOpacity={fillOpacity}
-                  stroke={isSelected ? '#FFFFFF' : strokeColor}
-                  strokeWidth={isSelected ? strokeWidth + 2 : strokeWidth}
+                  stroke={isSelected ? '#FFFFFF' : homePlayer ? '#FFD700' : strokeColor}
+                  strokeWidth={isSelected ? strokeWidth + 2 : homePlayer ? strokeWidth + 4 : strokeWidth}
                   strokeDasharray={strokeDasharray}
                   onMouseDown={(event) => handleMouseDown(event, region.id)}
                   onMouseEnter={() => handleMouseEnter(region.id)}

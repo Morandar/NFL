@@ -1475,3 +1475,15 @@ select:focus {
   flex: 1;
   max-width: 200px;
 }
+
+/* Mobile responsiveness for map */
+@media (max-width: 768px) {
+  .map-container svg {
+    transform: scale(1.2);
+    transform-origin: top center;
+  }
+  .map-container {
+    height: calc(1242px * 1.2);
+    overflow: hidden;
+  }
+}
