@@ -415,7 +415,7 @@ function App() {
         )}
         {gameState.phase === 'setup' && gameState.players.length > 0 && (
           <JoinScreen
-            availablePlayers={gameState.players.filter(p => !p.userId)}
+            players={gameState.players}
             onClaimPlayer={handleClaimPlayer}
             isHost={!!isHost}
             allClaimed={gameState.players.every(p => p.userId)}
@@ -426,7 +426,6 @@ function App() {
             onRemovePlayer={handleRemovePlayer}
             messages={gameState.messages}
             onSendMessage={handleSendMessage}
-            players={gameState.players}
           />
         )}
 

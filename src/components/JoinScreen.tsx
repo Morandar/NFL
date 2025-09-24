@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Player, Settings } from '../state/types';
 
 interface JoinScreenProps {
-  availablePlayers: Player[];
+  players: Player[];
   onClaimPlayer: (playerId: string) => void;
   isHost: boolean;
   allClaimed: boolean;
@@ -13,10 +13,9 @@ interface JoinScreenProps {
   onRemovePlayer: (playerId: string) => void;
   messages: { user: string; text: string; timestamp: string }[];
   onSendMessage: (text: string) => void;
-  players: Player[];
 }
 
-export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, messages, onSendMessage, players }: JoinScreenProps) {
+export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, messages, onSendMessage }: JoinScreenProps) {
   const [chatMessage, setChatMessage] = useState('');
 
   const handleClaim = (playerId: string) => {
@@ -42,44 +41,51 @@ export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed
         </div>
       </div>
       {!isHost && <p>Vyber si volný slot:</p>}
-      {availablePlayers.length === 0 ? (
-        <p>Žádné volné sloty. Počkej na admina, aby přidal hráče.</p>
-      ) : (
-        <div className="available-players">
-          {availablePlayers.map((player) => (
-            <div key={player.id} className="player-slot">
-              <span className="color-dot" style={{ backgroundColor: player.color }} />
-              <span>{player.name}</span>
-              {isHost ? (
-                <>
-                  <select
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        onAssignPlayer(player.id, e.target.value);
-                        e.target.value = '';
-                      }
-                    }}
-                  >
-                    <option value="">Přiřadit uživatele</option>
-                    {connectedUsers.filter(user => !assignedUsers.includes(user)).map((user) => (
-                      <option key={user} value={user}>
-                        {user}
-                      </option>
-                    ))}
-                  </select>
-                  <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
-                    Odebrat
+      <div className="available-players">
+        {players.map((player) => (
+          <div key={player.id} className="player-slot">
+            <span className="color-dot" style={{ backgroundColor: player.color }} />
+            <span>{player.name}</span>
+            {player.userId ? (
+              <span>Claimed by {player.userId}</span>
+            ) : (
+              <>
+                {isHost ? (
+                  <>
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          onAssignPlayer(player.id, e.target.value);
+                          e.target.value = '';
+                        }
+                      }}
+                    >
+                      <option value="">Přiřadit uživatele</option>
+                      {connectedUsers.filter(user => !assignedUsers.includes(user)).map((user) => (
+                        <option key={user} value={user}>
+                          {user}
+                        </option>
+                      ))}
+                    </select>
+                    <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
+                      Odebrat
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => handleClaim(player.id)}>
+                    Claim
                   </button>
-                </>
-              ) : (
-                <button onClick={() => handleClaim(player.id)}>
-                  Claim
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+                )}
+              </>
+            )}
+            {isHost && (
+              <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
+                Odebrat
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
       {isHost && allClaimed && (
         <button onClick={() => onStartDraft([], { picksPerPlayer: 1, useMarginRules: false, playoffBoost: false, superBowlSweep: false, lockDivisionRule: false })}>
           Start Draft
