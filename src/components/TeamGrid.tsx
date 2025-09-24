@@ -38,6 +38,7 @@ export function TeamGrid({
         {NFL_TEAMS.map((team) => {
           const ownerId = gameState.ownership[team.id];
           const owner = ownerId ? gameState.players.find((player) => player.id === ownerId) : undefined;
+          const homePlayer = gameState.players.find((p) => p.homeTeamId === team.id);
           const isSelected = selectedTeamId === team.id;
           const matchesHighlight = highlightPlayerId ? owner?.id === highlightPlayerId : true;
 
@@ -50,7 +51,9 @@ export function TeamGrid({
 
           const borderColor = isSelected
             ? '#FFFFFF'
-            : owner?.color ?? 'rgba(24, 28, 38, 0.7)';
+            : homePlayer
+              ? '#FFD700'
+              : owner?.color ?? 'rgba(24, 28, 38, 0.7)';
 
           const logoUrl = owner
             ? TEAM_LOGOS[team.id] ?? TEAM_LOGOS_BW[team.id]
