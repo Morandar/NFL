@@ -51,9 +51,9 @@ export function TeamGrid({
 
           const borderColor = isSelected
             ? '#FFFFFF'
-            : homePlayer
-              ? '#FFD700'
-              : owner?.color ?? 'rgba(24, 28, 38, 0.7)';
+            : owner?.color ?? 'rgba(24, 28, 38, 0.7)';
+
+          const boxShadow = homePlayer ? 'inset 0 0 0 2px #FFD700' : undefined;
 
           const logoUrl = owner
             ? TEAM_LOGOS[team.id] ?? TEAM_LOGOS_BW[team.id]
@@ -66,7 +66,7 @@ export function TeamGrid({
               key={team.id}
               type="button"
               className={`team-grid-tile ${owner ? 'owned' : 'free'} ${isSelected ? 'selected' : ''}`}
-              style={{ backgroundColor, borderColor }}
+              style={{ backgroundColor, borderColor, boxShadow }}
               onClick={() => onSelectTeam?.(team.id)}
             >
               <div
