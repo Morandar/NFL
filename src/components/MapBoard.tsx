@@ -256,8 +256,8 @@ export function MapBoard({
                   fill={fillColor}
                   fillOpacity={fillOpacity}
                   stroke={isSelected ? '#FFFFFF' : strokeColor}
-                  strokeWidth={isSelected ? strokeWidth + 4 : homePlayer ? strokeWidth + 4 : strokeWidth}
-                  strokeDasharray={homePlayer ? '8 4' : strokeDasharray}
+                  strokeWidth={isSelected ? strokeWidth + 4 : strokeWidth}
+                  strokeDasharray={strokeDasharray}
                   onMouseDown={(event) => handleMouseDown(event, region.id)}
                   onMouseEnter={() => handleMouseEnter(region.id)}
                   onMouseLeave={handleMouseLeave}
@@ -265,6 +265,16 @@ export function MapBoard({
                   style={{ cursor: isEditing ? 'grab' : 'pointer' }}
                   filter="url(#markerShadow)"
                 />
+                {homePlayer && (
+                  <circle
+                    cx={region.cx}
+                    cy={region.cy}
+                    r={region.radius - 4}
+                    fill="none"
+                    stroke="#FFD700"
+                    strokeWidth={2}
+                  />
+                )}
                 {logoSrc && (
                   <image
                     href={logoSrc}
