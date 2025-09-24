@@ -6,9 +6,11 @@ interface DraftBoardProps {
   gameState: GameState;
   onPickTeam: (teamId: TeamId) => void;
   currentUserPlayerId: string | null;
+  isHost: boolean;
+  onReset: () => void;
 }
 
-export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId }: DraftBoardProps) {
+export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId, isHost, onReset }: DraftBoardProps) {
   const { players, draftOrder, currentPickIndex, ownership } = gameState;
   const currentPlayerId = draftOrder[currentPickIndex];
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
@@ -34,6 +36,11 @@ export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId }: Draft
           </div>
         )}
         {draftComplete && <div className="draft-complete">Draft Complete!</div>}
+        {isHost && (
+          <button onClick={onReset} className="reset-btn" style={{ marginTop: '1rem' }}>
+            Reset to Setup
+          </button>
+        )}
       </div>
 
       <div className="teams-grid">
