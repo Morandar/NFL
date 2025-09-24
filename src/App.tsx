@@ -423,6 +423,7 @@ function App() {
             connectedUsers={gameState.connectedUsers}
             assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
             onAssignPlayer={handleClaimPlayer}
+            onRemovePlayer={handleRemovePlayer}
             messages={gameState.messages}
             onSendMessage={handleSendMessage}
             players={gameState.players}

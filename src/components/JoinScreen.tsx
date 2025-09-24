@@ -10,12 +10,13 @@ interface JoinScreenProps {
   connectedUsers: string[];
   assignedUsers: string[];
   onAssignPlayer: (playerId: string, userId: string) => void;
+  onRemovePlayer: (playerId: string) => void;
   messages: { user: string; text: string; timestamp: string }[];
   onSendMessage: (text: string) => void;
   players: Player[];
 }
 
-export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, messages, onSendMessage, players }: JoinScreenProps) {
+export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, messages, onSendMessage, players }: JoinScreenProps) {
   const [chatMessage, setChatMessage] = useState('');
 
   const handleClaim = (playerId: string) => {
@@ -66,6 +67,9 @@ export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed
                       </option>
                     ))}
                   </select>
+                  <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
+                    Odebrat
+                  </button>
                 </>
               ) : (
                 <button onClick={() => handleClaim(player.id)}>
