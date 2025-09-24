@@ -173,6 +173,7 @@ function App() {
   );
 
   const isHost = username && gameState.connectedUsers[0] === username;
+  const userPlayerIds = gameState.players.filter(p => p.userId === username).map(p => p.id);
 
   useEffect(() => {
     saveState(gameState);
@@ -463,7 +464,7 @@ function App() {
         )}
 
         {gameState.phase === 'draft' && (
-            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} currentUserPlayerId={currentUserPlayerId} isHost={!!isHost} onReset={handleReset} onRemovePlayer={handleRemovePlayer} />
+            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} userPlayerIds={userPlayerIds} isHost={!!isHost} onReset={handleReset} onRemovePlayer={handleRemovePlayer} />
           )}
 
         {gameState.phase === 'season' && (

@@ -5,13 +5,13 @@ import { TEAM_COLORS } from '../data/teamColors';
 interface DraftBoardProps {
   gameState: GameState;
   onPickTeam: (teamId: TeamId) => void;
-  currentUserPlayerId: string | null;
+  userPlayerIds: string[];
   isHost: boolean;
   onReset: () => void;
   onRemovePlayer: (playerId: string) => void;
 }
 
-export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId, isHost, onReset, onRemovePlayer }: DraftBoardProps) {
+export function DraftBoard({ gameState, onPickTeam, userPlayerIds, isHost, onReset, onRemovePlayer }: DraftBoardProps) {
   const { players, draftOrder, currentPickIndex, ownership } = gameState;
   const currentPlayerId = draftOrder[currentPickIndex];
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
@@ -60,13 +60,13 @@ export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId, isHost,
                 ownedMeta.conference === team.conference
               );
             });
-          const disabled = !isAvailable || draftComplete || divisionLocked || (currentUserPlayerId !== currentPlayerId);
+          const disabled = !isAvailable || draftComplete || divisionLocked || (!userPlayerIds.includes(currentPlayerId));
 
           return (
             <button
               key={team.id}
               className={`team-card ${!isAvailable ? 'taken' : ''} ${divisionLocked ? 'division-locked' : ''}`}
-              onClick={() => isAvailable && !draftComplete && !divisionLocked && (currentUserPlayerId === currentPlayerId) && onPickTeam(team.id)}
+              onClick={() => isAvailable && !draftComplete && !divisionLocked && userPlayerIds.includes(currentPlayerId) && onPickTeam(team.id)}
               disabled={disabled}
               style={{
                 backgroundColor: ownerPlayer ? ownerPlayer.color : '#2a2a2a',
