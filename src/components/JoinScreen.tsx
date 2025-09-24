@@ -76,6 +76,9 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
                         </option>
                       ))}
                     </select>
+                    <button onClick={() => handleClaim(player.id)} style={{ marginLeft: '0.5rem' }}>
+                      Claim for me
+                    </button>
                     <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
                       Odebrat
                     </button>
