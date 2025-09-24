@@ -305,14 +305,8 @@ function App() {
 
   const handleReset = () => {
     clearState();
-    const resetPlayers = gameState.players.map((player) => ({
-      ...player,
-      teamsOwned: [],
-      homeTeamId: null,
-    }));
     setGameState({
       ...initialState,
-      players: resetPlayers,
       ownership: createEmptyOwnership(),
     });
     setViewMode('map');
