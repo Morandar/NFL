@@ -355,7 +355,7 @@ export function ControlPanel({
       </div>
       )}
 
-      {gameState.phase !== 'season' && isHost && (
+      {isHost && (
         <div className="csv-section">
           <label htmlFor="csv-input">CSV Data:</label>
           <textarea
