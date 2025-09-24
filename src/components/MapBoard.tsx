@@ -225,8 +225,8 @@ export function MapBoard({
               ? isSelected
                 ? 0.98
                 : matchesHighlight
-                  ? 0.9
-                  : 0.68
+                  ? 0.95
+                  : 0.75
               : 0.6;
 
             const fillColor = owner
@@ -235,7 +235,7 @@ export function MapBoard({
             const strokeColor = owner
               ? owner.color
               : 'rgba(230, 234, 246, 0.85)';
-            const strokeWidth = owner ? 10 : 5;
+            const strokeWidth = owner ? 12 : 5;
             const strokeDasharray = owner ? undefined : '6 8';
 
             const logoSrc = owner
@@ -256,7 +256,7 @@ export function MapBoard({
                   fill={fillColor}
                   fillOpacity={fillOpacity}
                   stroke={isSelected ? '#FFFFFF' : strokeColor}
-                  strokeWidth={isSelected ? strokeWidth + 2 : homePlayer ? strokeWidth + 2 : strokeWidth}
+                  strokeWidth={isSelected ? strokeWidth + 4 : homePlayer ? strokeWidth + 4 : strokeWidth}
                   strokeDasharray={homePlayer ? '8 4' : strokeDasharray}
                   onMouseDown={(event) => handleMouseDown(event, region.id)}
                   onMouseEnter={() => handleMouseEnter(region.id)}
