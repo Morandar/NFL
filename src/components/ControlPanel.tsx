@@ -56,7 +56,7 @@ export function ControlPanel({
   const [exportVisible, setExportVisible] = useState(false);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [exportValue, setExportValue] = useState('');
-  const [useManualEntry, setUseManualEntry] = useState(false);
+  const [useManualEntry, setUseManualEntry] = useState(true);
 
   type ManualRow = {
     id: string;
