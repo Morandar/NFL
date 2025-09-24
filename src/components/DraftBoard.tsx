@@ -8,9 +8,10 @@ interface DraftBoardProps {
   currentUserPlayerId: string | null;
   isHost: boolean;
   onReset: () => void;
+  onRemovePlayer: (playerId: string) => void;
 }
 
-export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId, isHost, onReset }: DraftBoardProps) {
+export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId, isHost, onReset, onRemovePlayer }: DraftBoardProps) {
   const { players, draftOrder, currentPickIndex, ownership } = gameState;
   const currentPlayerId = draftOrder[currentPickIndex];
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
@@ -98,6 +99,18 @@ export function DraftBoard({ gameState, onPickTeam, currentUserPlayerId, isHost,
             );
           })}
         </div>
+        {isHost && gameState.players.length > 0 && (
+          <div className="player-management" style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#222', borderRadius: '8px' }}>
+            <h4>Manage Players</h4>
+            {gameState.players.map((player) => (
+              <div key={player.id} className="player-manage-row" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <span className="color-dot" style={{ backgroundColor: player.color }} />
+                <span>{player.name}</span>
+                <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
