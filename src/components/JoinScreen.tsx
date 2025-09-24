@@ -50,21 +50,23 @@ export function JoinScreen({ availablePlayers, onClaimPlayer, isHost, allClaimed
               <span className="color-dot" style={{ backgroundColor: player.color }} />
               <span>{player.name}</span>
               {isHost ? (
-                <select
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      onAssignPlayer(player.id, e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                >
-                  <option value="">Přiřadit uživatele</option>
-                  {connectedUsers.filter(user => !assignedUsers.includes(user)).map((user) => (
-                    <option key={user} value={user}>
-                      {user}
-                    </option>
-                  ))}
-                </select>
+                <>
+                  <select
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        onAssignPlayer(player.id, e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                  >
+                    <option value="">Přiřadit uživatele</option>
+                    {connectedUsers.filter(user => !assignedUsers.includes(user)).map((user) => (
+                      <option key={user} value={user}>
+                        {user}
+                      </option>
+                    ))}
+                  </select>
+                </>
               ) : (
                 <button onClick={() => handleClaim(player.id)}>
                   Claim

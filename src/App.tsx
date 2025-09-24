@@ -307,6 +307,20 @@ function App() {
     setGameState((prev) => ({ ...prev, week }));
   };
 
+  const handleRemovePlayer = (playerId: string) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.filter((p) => p.id !== playerId),
+    }));
+  };
+
+  const handleUpdatePlayerName = (playerId: string, name: string) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, name } : p)),
+    }));
+  };
+
   const handleReset = () => {
     clearState();
     setGameState({
@@ -450,6 +464,10 @@ function App() {
                 onResetRegions={handleResetRegions}
                 onResetSession={handleResetSession}
                 onSetWeek={handleSetWeek}
+                currentUserPlayerId={currentUserPlayerId}
+                onSetCurrentUserPlayerId={setCurrentUserPlayerId}
+                onUpdatePlayerName={handleUpdatePlayerName}
+                onRemovePlayer={handleRemovePlayer}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}

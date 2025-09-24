@@ -28,6 +28,10 @@ interface ControlPanelProps {
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
+  currentUserPlayerId: string | null;
+  onSetCurrentUserPlayerId: (id: string | null) => void;
+  onUpdatePlayerName: (playerId: string, name: string) => void;
+  onRemovePlayer: (playerId: string) => void;
   isHost: boolean;
 }
 
@@ -51,6 +55,10 @@ export function ControlPanel({
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
+  currentUserPlayerId,
+  onSetCurrentUserPlayerId,
+  onUpdatePlayerName,
+  onRemovePlayer,
   isHost,
 }: ControlPanelProps) {
   const [csvData, setCsvData] = useState('');
@@ -263,6 +271,42 @@ export function ControlPanel({
                 <button type="button" onClick={onResetSession} className="reset-btn" style={{ marginTop: '0.5rem' }}>
                   Reset Session
                 </button>
+                {gameState.players.length > 0 && (
+                  <>
+                    <div className="player-selection-row" style={{ marginTop: '1rem' }}>
+                      <span>I am player:</span>
+                      <select value={currentUserPlayerId ?? ''} onChange={(e) => onSetCurrentUserPlayerId(e.target.value || null)}>
+                        <option value="">— select —</option>
+                        {gameState.players.map((player) => (
+                          <option key={player.id} value={player.id}>
+                            {player.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {currentUserPlayerId && (
+                      <div className="player-name-row" style={{ marginTop: '0.5rem' }}>
+                        <span>My name:</span>
+                        <input
+                          type="text"
+                          value={gameState.players.find((p) => p.id === currentUserPlayerId)?.name ?? ''}
+                          onChange={(e) => onUpdatePlayerName(currentUserPlayerId, e.target.value)}
+                          maxLength={20}
+                        />
+                      </div>
+                    )}
+                    <div className="player-management" style={{ marginTop: '1rem' }}>
+                      <h4>Manage Players</h4>
+                      {gameState.players.map((player) => (
+                        <div key={player.id} className="player-manage-row" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <span className="color-dot" style={{ backgroundColor: player.color }} />
+                          <span>{player.name}</span>
+                          <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>
