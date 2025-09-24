@@ -143,10 +143,5 @@ export function applyWeekResults(state: GameState, csvData: string): GameState {
     newState = applyRow(newState, row);
   }
 
-  newState = {
-    ...newState,
-    week: state.week + 1,
-  };
-
   return newState;
 }
