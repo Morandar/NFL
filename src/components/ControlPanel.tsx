@@ -405,9 +405,11 @@ export function ControlPanel({
             <button onClick={openPreview} aria-label="Open preview window">
               Open Preview
             </button>
-            <button onClick={onReset} className="reset-btn" aria-label="Reset game">
-              Reset to Setup
-            </button>
+            {isHost && (
+              <button onClick={onReset} className="reset-btn" aria-label="Reset game">
+                Reset to Setup
+              </button>
+            )}
           </div>
         </div>
       )}
