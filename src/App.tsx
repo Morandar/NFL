@@ -464,7 +464,7 @@ function App() {
         )}
 
         {gameState.phase === 'draft' && (
-            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} userPlayerIds={userPlayerIds} isHost={!!isHost} onReset={handleReset} onRemovePlayer={handleRemovePlayer} />
+            <DraftBoard gameState={gameState} onPickTeam={handlePickTeam} userPlayerIds={userPlayerIds} isHost={!!isHost} onReset={handleReset} onRemovePlayer={handleRemovePlayer} onUpdatePlayerName={handleUpdatePlayerName} />
           )}
 
         {gameState.phase === 'season' && (

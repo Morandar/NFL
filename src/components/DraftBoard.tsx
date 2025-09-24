@@ -9,9 +9,10 @@ interface DraftBoardProps {
   isHost: boolean;
   onReset: () => void;
   onRemovePlayer: (playerId: string) => void;
+  onUpdatePlayerName: (playerId: string, name: string) => void;
 }
 
-export function DraftBoard({ gameState, onPickTeam, userPlayerIds, isHost, onReset, onRemovePlayer }: DraftBoardProps) {
+export function DraftBoard({ gameState, onPickTeam, userPlayerIds, isHost, onReset, onRemovePlayer, onUpdatePlayerName }: DraftBoardProps) {
   const { players, draftOrder, currentPickIndex, ownership } = gameState;
   const currentPlayerId = draftOrder[currentPickIndex];
   const currentPlayer = players.find((player) => player.id === currentPlayerId);
@@ -105,7 +106,12 @@ export function DraftBoard({ gameState, onPickTeam, userPlayerIds, isHost, onRes
             {gameState.players.map((player) => (
               <div key={player.id} className="player-manage-row" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <span className="color-dot" style={{ backgroundColor: player.color }} />
-                <span>{player.name}</span>
+                <input
+                  type="text"
+                  value={player.name}
+                  onChange={(e) => onUpdatePlayerName(player.id, e.target.value)}
+                  style={{ flex: 1 }}
+                />
                 <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
               </div>
             ))}
