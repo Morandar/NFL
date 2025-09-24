@@ -28,11 +28,11 @@ interface ControlPanelProps {
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
-  currentUserPlayerId: string | null;
-  onSetCurrentUserPlayerId: (id: string | null) => void;
   onUpdatePlayerName: (playerId: string, name: string) => void;
   onRemovePlayer: (playerId: string) => void;
   onAssignPlayer: (playerId: string, userId: string | undefined) => void;
+  userPlayerIds: string[];
+  username: string;
   isHost: boolean;
 }
 
@@ -56,11 +56,11 @@ export function ControlPanel({
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
-  currentUserPlayerId,
-  onSetCurrentUserPlayerId,
   onUpdatePlayerName,
   onRemovePlayer,
   onAssignPlayer,
+  userPlayerIds,
+  username,
   isHost,
 }: ControlPanelProps) {
   const [csvData, setCsvData] = useState('');
@@ -247,25 +247,39 @@ export function ControlPanel({
                 {gameState.players.length > 0 && (
                   <>
                     <div className="player-selection-row" style={{ marginTop: '1rem' }}>
-                      <span>I am player:</span>
-                      <select value={currentUserPlayerId ?? ''} onChange={(e) => onSetCurrentUserPlayerId(e.target.value || null)}>
-                        <option value="">— select —</option>
+                      <span>Assign to me:</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         {gameState.players.map((player) => (
-                          <option key={player.id} value={player.id}>
+                          <label key={player.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <input
+                              type="checkbox"
+                              checked={player.userId === username}
+                              onChange={(e) => onAssignPlayer(player.id, e.target.checked ? username : undefined)}
+                            />
+                            <span className="color-dot" style={{ backgroundColor: player.color }} />
                             {player.name}
-                          </option>
+                          </label>
                         ))}
-                      </select>
+                      </div>
                     </div>
-                    {currentUserPlayerId && (
-                      <div className="player-name-row" style={{ marginTop: '0.5rem' }}>
-                        <span>My name:</span>
-                        <input
-                          type="text"
-                          value={gameState.players.find((p) => p.id === currentUserPlayerId)?.name ?? ''}
-                          onChange={(e) => onUpdatePlayerName(currentUserPlayerId, e.target.value)}
-                          maxLength={20}
-                        />
+                    {userPlayerIds.length > 0 && (
+                      <div className="player-names-row" style={{ marginTop: '0.5rem' }}>
+                        <span>My names:</span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                          {userPlayerIds.map((playerId) => {
+                            const player = gameState.players.find((p) => p.id === playerId);
+                            return (
+                              <input
+                                key={playerId}
+                                type="text"
+                                value={player?.name ?? ''}
+                                onChange={(e) => onUpdatePlayerName(playerId, e.target.value)}
+                                maxLength={20}
+                                placeholder={`Player ${playerId}`}
+                              />
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                     <div className="player-management" style={{ marginTop: '1rem' }}>

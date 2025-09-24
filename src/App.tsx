@@ -123,7 +123,6 @@ function App() {
   const [selectedTeamId, setSelectedTeamId] = useState<TeamId | null>(null);
   const [highlightPlayerId, setHighlightPlayerId] = useState<string | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
-  const [currentUserPlayerId, setCurrentUserPlayerId] = useState<string | null>(null);
   const [chatMessage, setChatMessage] = useState('');
   const [mapRegions, setMapRegions] = useState<MapRegion[]>(() => loadStoredRegions());
 
@@ -158,14 +157,6 @@ function App() {
     }
   }, [gameState.hostId, username, gameState.players.length]);
 
-  useEffect(() => {
-    if (username) {
-      const myPlayer = gameState.players.find(p => p.userId === username);
-      setCurrentUserPlayerId(myPlayer?.id || null);
-    } else {
-      setCurrentUserPlayerId(null);
-    }
-  }, [username, gameState.players]);
 
   const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
@@ -382,7 +373,6 @@ function App() {
       await getSupabaseClient().from('game_sessions').delete().eq('id', sessionId);
     }
     setGameState(initialState);
-    setCurrentUserPlayerId(null);
     setViewMode('map');
     setSelectedTeamId(null);
     setHighlightPlayerId(null);
@@ -505,11 +495,11 @@ function App() {
                 onResetRegions={handleResetRegions}
                 onResetSession={handleResetSession}
                 onSetWeek={handleSetWeek}
-                currentUserPlayerId={currentUserPlayerId}
-                onSetCurrentUserPlayerId={setCurrentUserPlayerId}
                 onUpdatePlayerName={handleUpdatePlayerName}
                 onRemovePlayer={handleRemovePlayer}
                 onAssignPlayer={handleAssignPlayer}
+                userPlayerIds={userPlayerIds}
+                username={username}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
