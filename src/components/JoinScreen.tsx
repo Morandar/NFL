@@ -11,11 +11,12 @@ interface JoinScreenProps {
   assignedUsers: string[];
   onAssignPlayer: (playerId: string, userId: string) => void;
   onRemovePlayer: (playerId: string) => void;
+  onUnclaimPlayer: (playerId: string) => void;
   messages: { user: string; text: string; timestamp: string }[];
   onSendMessage: (text: string) => void;
 }
 
-export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, messages, onSendMessage }: JoinScreenProps) {
+export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStartDraft, connectedUsers, assignedUsers, onAssignPlayer, onRemovePlayer, onUnclaimPlayer, messages, onSendMessage }: JoinScreenProps) {
   const [chatMessage, setChatMessage] = useState('');
 
   const handleClaim = (playerId: string) => {
@@ -47,7 +48,14 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
             <span className="color-dot" style={{ backgroundColor: player.color }} />
             <span>{player.name}</span>
             {player.userId ? (
-              <span>Claimed by {player.userId}</span>
+              <>
+                <span>Claimed by {player.userId}</span>
+                {isHost && (
+                  <button onClick={() => onUnclaimPlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
+                    Uvolnit
+                  </button>
+                )}
+              </>
             ) : (
               <>
                 {isHost ? (
@@ -77,11 +85,6 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
                   </button>
                 )}
               </>
-            )}
-            {isHost && (
-              <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
-                Odebrat
-              </button>
             )}
           </div>
         ))}

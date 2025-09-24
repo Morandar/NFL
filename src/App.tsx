@@ -314,6 +314,13 @@ function App() {
     }));
   };
 
+  const handleUnclaimPlayer = (playerId: string) => {
+    setGameState((prev) => ({
+      ...prev,
+      players: prev.players.map((p) => (p.id === playerId ? { ...p, userId: undefined, name: p.id } : p)),
+    }));
+  };
+
   const handleUpdatePlayerName = (playerId: string, name: string) => {
     setGameState((prev) => ({
       ...prev,
@@ -424,6 +431,7 @@ function App() {
             assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
             onAssignPlayer={handleClaimPlayer}
             onRemovePlayer={handleRemovePlayer}
+            onUnclaimPlayer={handleUnclaimPlayer}
             messages={gameState.messages}
             onSendMessage={handleSendMessage}
           />
