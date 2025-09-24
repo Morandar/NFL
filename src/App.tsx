@@ -115,22 +115,14 @@ function App() {
   const [chatMessage, setChatMessage] = useState('');
   const [mapRegions, setMapRegions] = useState<MapRegion[]>(() => loadStoredRegions());
 
-  const handleLogin = (name: string, role: 'host' | 'player') => {
+  const handleLogin = (name: string) => {
     setUsername(name);
     localStorage.setItem('nfl-username', name);
     // Add to connected users if not already
-    setGameState(prev => {
-      const newConnected = prev.connectedUsers.includes(name) ? prev.connectedUsers : [...prev.connectedUsers, name];
-      let newHostId = prev.hostId;
-      if (role === 'host' && !prev.hostId) {
-        newHostId = name;
-      }
-      return {
-        ...prev,
-        connectedUsers: newConnected,
-        hostId: newHostId,
-      };
-    });
+    setGameState(prev => ({
+      ...prev,
+      connectedUsers: prev.connectedUsers.includes(name) ? prev.connectedUsers : [...prev.connectedUsers, name]
+    }));
   };
 
   const handleSendMessage = (text: string) => {
@@ -363,23 +355,8 @@ function App() {
       </header>
 
       <main className="app-content">
-        {gameState.phase === 'setup' && gameState.players.length > 0 && (!currentUserPlayerId || isHost) && (
-          <JoinScreen
-            availablePlayers={gameState.players.filter(p => !p.userId)}
-            onClaimPlayer={handleClaimPlayer}
-            isHost={!!isHost}
-            allClaimed={gameState.players.every(p => p.userId)}
-            onStartDraft={handleStartDraft}
-            connectedUsers={gameState.connectedUsers}
-            assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
-            onAssignPlayer={handleClaimPlayer}
-            messages={gameState.messages}
-            onSendMessage={handleSendMessage}
-            players={gameState.players}
-          />
-        )}
         {gameState.phase === 'setup' && gameState.players.length === 0 && isHost && <SetupPanel onAddPlayers={handleAddPlayers} />}
-        {gameState.phase === 'setup' && !isHost && gameState.players.length === 0 && (
+        {gameState.phase === 'setup' && gameState.players.length === 0 && !isHost && (
           <div className="waiting-screen">
             <h2>Čekání na hosta</h2>
             <p>Host připravuje hru...</p>
@@ -410,6 +387,21 @@ function App() {
               </div>
             </div>
           </div>
+        )}
+        {gameState.phase === 'setup' && gameState.players.length > 0 && (
+          <JoinScreen
+            availablePlayers={gameState.players.filter(p => !p.userId)}
+            onClaimPlayer={handleClaimPlayer}
+            isHost={!!isHost}
+            allClaimed={gameState.players.every(p => p.userId)}
+            onStartDraft={handleStartDraft}
+            connectedUsers={gameState.connectedUsers}
+            assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
+            onAssignPlayer={handleClaimPlayer}
+            messages={gameState.messages}
+            onSendMessage={handleSendMessage}
+            players={gameState.players}
+          />
         )}
 
         {gameState.phase === 'draft' && (
