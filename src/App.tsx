@@ -16,6 +16,7 @@ import { DEFAULT_MAP_REGIONS, MapRegion } from './data/mapRegions';
 import { clearStoredRegions, loadStoredRegions, persistRegions } from './data/regionStorage';
 import { NFL_TEAM_MAP } from './data/nflTeams';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
+import { getSupabaseClient } from './lib/supabaseClient';
 import './styles.css';
 
 const initialState: GameState = {
@@ -155,7 +156,7 @@ function App() {
     }
   }, [username, gameState.players]);
 
-  const { status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
+  const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
     setGameState,
   );
@@ -324,6 +325,18 @@ function App() {
     clearStoredRegions();
   };
 
+  const handleResetSession = async () => {
+    if (sessionId) {
+      // @ts-ignore
+      await getSupabaseClient().from('game_sessions').delete().eq('id', sessionId);
+    }
+    setGameState(initialState);
+    setCurrentUserPlayerId(null);
+    setViewMode('map');
+    setSelectedTeamId(null);
+    setHighlightPlayerId(null);
+  };
+
 
   const handleClaimPlayer = (playerId: string, name: string) => {
     if (!username) return;
@@ -437,6 +450,7 @@ function App() {
                 onClearHighlight={() => setHighlightPlayerId(null)}
                 onExportRegions={() => JSON.stringify(mapRegions, null, 2)}
                 onResetRegions={handleResetRegions}
+                onResetSession={handleResetSession}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}

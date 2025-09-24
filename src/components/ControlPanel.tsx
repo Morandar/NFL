@@ -23,6 +23,7 @@ interface ControlPanelProps {
   onClearHighlight: () => void;
   onExportRegions: () => string;
   onResetRegions: () => void;
+  onResetSession: () => void;
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
@@ -44,6 +45,7 @@ export function ControlPanel({
   onClearHighlight,
   onExportRegions,
   onResetRegions,
+  onResetSession,
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
@@ -253,9 +255,14 @@ export function ControlPanel({
           <div className="multiplayer-body">
             {multiplayerError && <div className="error-message">{multiplayerError}</div>}
             {isHost && (
-              <button type="button" onClick={onReset} className="reset-btn" style={{ marginTop: '0.5rem' }}>
-                Reset Game
-              </button>
+              <>
+                <button type="button" onClick={onReset} className="reset-btn" style={{ marginTop: '0.5rem' }}>
+                  Reset Game
+                </button>
+                <button type="button" onClick={onResetSession} className="reset-btn" style={{ marginTop: '0.5rem' }}>
+                  Reset Session
+                </button>
+              </>
             )}
           </div>
         ) : (
@@ -331,7 +338,8 @@ export function ControlPanel({
         </div>
       )}
 
-      <div className="asset-links">
+      {isHost && (
+        <div className="asset-links">
         <span className="section-label">Práce s podklady:</span>
         <div className="asset-buttons">
           <button type="button" onClick={() => openAsset(maskPreviewUrl, 'nfl-conquest-mask')}>
@@ -345,6 +353,7 @@ export function ControlPanel({
           </button>
         </div>
       </div>
+      )}
 
       {gameState.phase !== 'season' && isHost && (
         <div className="csv-section">

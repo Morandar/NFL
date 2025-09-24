@@ -305,9 +305,11 @@ export function MapBoard({
           </div>
         )}
       </div>
-      <p className="map-board-hint">
-        TIP: soubor `nfl_map_mask_template.svg` slouží jako podklad pro kreslení vlastních hranic.
-      </p>
+      {isEditing && (
+        <p className="map-board-hint">
+          TIP: soubor `nfl_map_mask_template.svg` slouží jako podklad pro kreslení vlastních hranic.
+        </p>
+      )}
     </div>
   );
 }
