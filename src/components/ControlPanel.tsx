@@ -24,6 +24,7 @@ interface ControlPanelProps {
   onExportRegions: () => string;
   onResetRegions: () => void;
   onResetSession: () => void;
+  onSetWeek: (week: number) => void;
   multiplayerStatus: MultiplayerStatus;
   multiplayerError: string | null;
   isMultiplayerEnabled: boolean;
@@ -46,6 +47,7 @@ export function ControlPanel({
   onExportRegions,
   onResetRegions,
   onResetSession,
+  onSetWeek,
   multiplayerStatus,
   multiplayerError,
   isMultiplayerEnabled,
@@ -195,8 +197,7 @@ export function ControlPanel({
     try {
       setError('');
       onApplyCsv(csv);
-      setUseManualEntry(false);
-      setManualRows([createEmptyRow(gameState.week + 1)]);
+      setManualRows([createEmptyRow(gameState.week)]);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -273,7 +274,23 @@ export function ControlPanel({
       </div>
 
       <div className="week-info">
-        <strong>Current Week:</strong> {gameState.week}
+        <strong>Current Week:</strong>
+        {isHost ? (
+          <>
+            <input
+              type="number"
+              value={gameState.week}
+              onChange={(e) => onSetWeek(parseInt(e.target.value) || 1)}
+              min={1}
+              style={{ width: '60px', marginLeft: '0.5rem' }}
+            />
+            <button onClick={() => onSetWeek(gameState.week + 1)} style={{ marginLeft: '0.5rem' }}>
+              Next Week
+            </button>
+          </>
+        ) : (
+          gameState.week
+        )}
       </div>
 
       <div className="view-mode-section" aria-label="Map display mode selector">

@@ -303,6 +303,10 @@ function App() {
     setGameState(newState);
   };
 
+  const handleSetWeek = (week: number) => {
+    setGameState((prev) => ({ ...prev, week }));
+  };
+
   const handleReset = () => {
     clearState();
     setGameState({
@@ -445,6 +449,7 @@ function App() {
                 onExportRegions={() => JSON.stringify(mapRegions, null, 2)}
                 onResetRegions={handleResetRegions}
                 onResetSession={handleResetSession}
+                onSetWeek={handleSetWeek}
                 multiplayerStatus={multiplayerStatus}
                 multiplayerError={multiplayerError}
                 isMultiplayerEnabled={isMultiplayerEnabled}
