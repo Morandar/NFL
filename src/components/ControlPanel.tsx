@@ -460,7 +460,7 @@ export function ControlPanel({
                           onChange={(event) => handleManualRowChange(row.id, { winner: event.target.value as TeamId })}
                         >
                           <option value="">— vyber —</option>
-                          {NFL_TEAMS.map((team) => (
+                          {[...NFL_TEAMS].sort((a, b) => `${a.city} ${a.name}`.localeCompare(`${b.city} ${b.name}`)).map((team) => (
                             <option key={team.id} value={team.id}>
                               {team.city} {team.name}
                             </option>
@@ -473,7 +473,7 @@ export function ControlPanel({
                           onChange={(event) => handleManualRowChange(row.id, { loser: event.target.value as TeamId })}
                         >
                           <option value="">— vyber —</option>
-                          {NFL_TEAMS.map((team) => (
+                          {[...NFL_TEAMS].sort((a, b) => `${a.city} ${a.name}`.localeCompare(`${b.city} ${b.name}`)).map((team) => (
                             <option key={team.id} value={team.id}>
                               {team.city} {team.name}
                             </option>

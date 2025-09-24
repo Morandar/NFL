@@ -1483,7 +1483,7 @@ select:focus {
     transform-origin: top center;
   }
   .map-container {
-    height: calc(1242px * 1.2);
-    overflow: hidden;
+    max-height: 60vh;
+    overflow: auto;
   }
 }
