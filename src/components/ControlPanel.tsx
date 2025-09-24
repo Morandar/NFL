@@ -74,8 +74,9 @@ export function ControlPanel({
     id: string;
     week: string;
     winner: TeamId | '';
+    winnerScore: string;
     loser: TeamId | '';
-    margin: string;
+    loserScore: string;
     isPlayoff: boolean;
     isSuperBowl: boolean;
   };
@@ -84,8 +85,9 @@ export function ControlPanel({
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     week: week.toString(),
     winner: '',
+    winnerScore: '',
     loser: '',
-    margin: '',
+    loserScore: '',
     isPlayoff: false,
     isSuperBowl: false,
   });
@@ -177,18 +179,23 @@ export function ControlPanel({
     (row) =>
       row.week.trim() !== '' &&
       row.winner &&
+      row.winnerScore.trim() !== '' &&
       row.loser &&
-      row.winner !== row.loser,
+      row.loserScore.trim() !== '' &&
+      row.winner !== row.loser &&
+      !isNaN(parseInt(row.winnerScore)) &&
+      !isNaN(parseInt(row.loserScore)),
   );
 
   const manualRowsToCsv = () => {
     const header = 'week,winner,loser,margin,isPlayoff,isSuperBowl';
     const lines = manualRows.map((row) => {
+      const margin = parseInt(row.winnerScore) - parseInt(row.loserScore);
       const parts = [
         row.week.trim(),
         row.winner,
         row.loser,
-        row.margin.trim(),
+        margin.toString(),
         row.isPlayoff ? 'true' : 'false',
         row.isSuperBowl ? 'true' : 'false',
       ];
@@ -217,42 +224,6 @@ export function ControlPanel({
     }
   };
 
-  const handleLoadCsvIntoTable = () => {
-    if (!csvData.trim()) return;
-    const lines = csvData.trim().split('\n');
-    if (!lines.length) return;
-    const header = lines[0].toLowerCase();
-    if (!header.startsWith('week')) {
-      setError('CSV neobsahuje očekávanou hlavičku.');
-      return;
-    }
-
-    const parsed: ManualRow[] = lines
-      .slice(1)
-      .map((line) => line.split(',').map((part) => part.trim()))
-      .filter((parts) => parts.length >= 3)
-      .map((parts) => {
-        const [week, winner, loser, margin = '', isPlayoff = 'false', isSuperBowl = 'false'] = parts;
-        return {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          week: week || gameState.week.toString(),
-          winner: (winner as TeamId) || '',
-          loser: (loser as TeamId) || '',
-          margin,
-          isPlayoff: isPlayoff === 'true',
-          isSuperBowl: isSuperBowl === 'true',
-        };
-      });
-
-    if (parsed.length === 0) {
-      setError('CSV neobsahuje žádné platné řádky.');
-      return;
-    }
-
-    setManualRows(parsed);
-    setUseManualEntry(true);
-    setError('');
-  };
 
   return (
     <div className="control-panel">
@@ -460,13 +431,6 @@ export function ControlPanel({
             >
               Apply CSV for Week {gameState.week}
             </button>
-            <button
-              type="button"
-              onClick={handleLoadCsvIntoTable}
-              disabled={!csvData.trim()}
-            >
-              Načíst CSV do tabulky
-            </button>
             <button onClick={openPreview} aria-label="Open preview window">
               Open Preview
             </button>
@@ -503,8 +467,9 @@ export function ControlPanel({
                   <tr>
                     <th>Týden</th>
                     <th>Vítěz</th>
+                    <th>Skóre</th>
                     <th>Poražený</th>
-                    <th>Margin</th>
+                    <th>Skóre</th>
                     <th>Playoff</th>
                     <th>Super Bowl</th>
                     <th></th>
@@ -535,6 +500,14 @@ export function ControlPanel({
                         </select>
                       </td>
                       <td>
+                        <input
+                          type="number"
+                          min={0}
+                          value={row.winnerScore}
+                          onChange={(event) => handleManualRowChange(row.id, { winnerScore: event.target.value })}
+                        />
+                      </td>
+                      <td>
                         <select
                           value={row.loser}
                           onChange={(event) => handleManualRowChange(row.id, { loser: event.target.value as TeamId })}
@@ -551,8 +524,8 @@ export function ControlPanel({
                         <input
                           type="number"
                           min={0}
-                          value={row.margin}
-                          onChange={(event) => handleManualRowChange(row.id, { margin: event.target.value })}
+                          value={row.loserScore}
+                          onChange={(event) => handleManualRowChange(row.id, { loserScore: event.target.value })}
                         />
                       </td>
                       <td className="manual-checkbox">
