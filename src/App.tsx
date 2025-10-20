@@ -351,6 +351,30 @@ function App() {
     }));
   };
 
+  const handleRemoveTeams = (playerId: string, teamIds: TeamId[]) => {
+    setGameState((prev) => {
+      const newOwnership = { ...prev.ownership };
+      teamIds.forEach((teamId) => {
+        newOwnership[teamId] = null;
+      });
+      const updatedPlayers = prev.players.map((p) => {
+        if (p.id === playerId) {
+          return {
+            ...p,
+            teamsOwned: p.teamsOwned.filter((id) => !teamIds.includes(id)),
+          };
+        }
+        return p;
+      });
+      return {
+        ...prev,
+        ownership: newOwnership,
+        players: updatedPlayers,
+        log: [...prev.log, `Removed teams ${teamIds.join(', ')} from ${playerId}`],
+      };
+    });
+  };
+
   const handleReset = () => {
     clearState();
     setGameState({
@@ -498,6 +522,7 @@ function App() {
                 onUpdatePlayerName={handleUpdatePlayerName}
                 onRemovePlayer={handleRemovePlayer}
                 onAssignPlayer={handleAssignPlayer}
+                onRemoveTeams={handleRemoveTeams}
                 userPlayerIds={userPlayerIds}
                 username={username}
                 multiplayerStatus={multiplayerStatus}

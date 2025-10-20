@@ -43,8 +43,7 @@ export function applyRow(state: GameState, row: ResultRow): GameState {
         `${row.winner} (neutral) beat ${row.loser}, ale domácí tým zůstává v držení ${loserOwner}.`,
       );
     } else {
-      newState.ownership[row.winner] = loserOwner;
-      newState.log.push(`${row.winner} (neutral) beat ${row.loser}, maintaining ${loserOwner}'s control`);
+      newState.log.push(`${row.winner} (neutral) beat ${row.loser}, no change`);
     }
   }
 
@@ -59,13 +58,13 @@ export function applyRow(state: GameState, row: ResultRow): GameState {
   }
 
   if (extraCaptures > 0 && winnerOwner) {
-    const loserTerritories = getPlayerTerritories(newState, loserOwner || '');
+    const neutralTerritories = Object.entries(newState.ownership)
+      .filter(([, owner]) => owner === null)
+      .map(([teamId]) => teamId as TeamId);
     let captured = 0;
 
-    for (const territory of loserTerritories) {
+    for (const territory of neutralTerritories) {
       if (captured >= extraCaptures) break;
-      if (territory === row.loser) continue;
-      if (isHomeProtected(territory, loserOwner)) continue;
       newState.ownership[territory] = winnerOwner;
       captured++;
     }

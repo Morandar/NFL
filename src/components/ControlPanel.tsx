@@ -31,6 +31,7 @@ interface ControlPanelProps {
   onUpdatePlayerName: (playerId: string, name: string) => void;
   onRemovePlayer: (playerId: string) => void;
   onAssignPlayer: (playerId: string, userId: string | undefined) => void;
+  onRemoveTeams: (playerId: string, teamIds: TeamId[]) => void;
   userPlayerIds: string[];
   username: string;
   isHost: boolean;
@@ -59,6 +60,7 @@ export function ControlPanel({
   onUpdatePlayerName,
   onRemovePlayer,
   onAssignPlayer,
+  onRemoveTeams,
   userPlayerIds,
   username,
   isHost,
@@ -93,6 +95,7 @@ export function ControlPanel({
   });
 
   const [manualRows, setManualRows] = useState<ManualRow[]>([createEmptyRow(gameState.week)]);
+  const [selectedTeamsToRemove, setSelectedTeamsToRemove] = useState<Record<string, TeamId[]>>({});
   const multiplayerStatusLabel = useMemo(() => {
     switch (multiplayerStatus) {
       case 'connecting':
@@ -285,29 +288,66 @@ export function ControlPanel({
                     <div className="player-management" style={{ marginTop: '1rem' }}>
                       <h4>Manage Players</h4>
                       {gameState.players.map((player) => (
-                        <div key={player.id} className="player-manage-row" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                          <span className="color-dot" style={{ backgroundColor: player.color }} />
-                          <input
-                            type="text"
-                            value={player.name}
-                            onChange={(e) => onUpdatePlayerName(player.id, e.target.value)}
-                            style={{ flex: 1 }}
-                          />
-                          <select
-                            value={player.userId || ''}
-                            onChange={(e) => {
-                              const newUserId = e.target.value || undefined;
-                              onAssignPlayer(player.id, newUserId);
-                            }}
-                          >
-                            <option value="">Nepřiřazeno</option>
-                            {gameState.connectedUsers.map((user) => (
-                              <option key={user} value={user}>
-                                {user}
-                              </option>
+                        <div key={player.id} className="player-manage-row" style={{ marginBottom: '1rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                            <span className="color-dot" style={{ backgroundColor: player.color }} />
+                            <input
+                              type="text"
+                              value={player.name}
+                              onChange={(e) => onUpdatePlayerName(player.id, e.target.value)}
+                              style={{ flex: 1 }}
+                            />
+                            <select
+                              value={player.userId || ''}
+                              onChange={(e) => {
+                                const newUserId = e.target.value || undefined;
+                                onAssignPlayer(player.id, newUserId);
+                              }}
+                            >
+                              <option value="">Nepřiřazeno</option>
+                              {gameState.connectedUsers.map((user) => (
+                                <option key={user} value={user}>
+                                  {user}
+                                </option>
+                              ))}
+                            </select>
+                            <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
+                          </div>
+                          <div className="player-teams" style={{ marginLeft: '1rem' }}>
+                            <strong>Teams ({player.teamsOwned.length}):</strong>
+                            {player.teamsOwned.map((teamId) => (
+                              <label key={teamId} style={{ display: 'block', marginLeft: '1rem' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={(selectedTeamsToRemove[player.id] || []).includes(teamId)}
+                                  onChange={(e) => {
+                                    setSelectedTeamsToRemove((prev) => {
+                                      const current = prev[player.id] || [];
+                                      if (e.target.checked) {
+                                        return { ...prev, [player.id]: [...current, teamId] };
+                                      } else {
+                                        return { ...prev, [player.id]: current.filter((id) => id !== teamId) };
+                                      }
+                                    });
+                                  }}
+                                />
+                                {teamId}
+                              </label>
                             ))}
-                          </select>
-                          <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
+                            <button
+                              onClick={() => {
+                                const teams = selectedTeamsToRemove[player.id] || [];
+                                if (teams.length > 0) {
+                                  onRemoveTeams(player.id, teams);
+                                  setSelectedTeamsToRemove((prev) => ({ ...prev, [player.id]: [] }));
+                                }
+                              }}
+                              disabled={(selectedTeamsToRemove[player.id] || []).length === 0}
+                              style={{ marginTop: '0.25rem' }}
+                            >
+                              Remove Selected Teams
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
