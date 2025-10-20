@@ -314,39 +314,48 @@ export function ControlPanel({
                             <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
                           </div>
                           <div className="player-teams" style={{ marginLeft: '1rem' }}>
-                            <strong>Teams ({player.teamsOwned.length}):</strong>
-                            {player.teamsOwned.map((teamId) => (
-                              <label key={teamId} style={{ display: 'block', marginLeft: '1rem' }}>
-                                <input
-                                  type="checkbox"
-                                  checked={(selectedTeamsToRemove[player.id] || []).includes(teamId)}
-                                  onChange={(e) => {
-                                    setSelectedTeamsToRemove((prev) => {
-                                      const current = prev[player.id] || [];
-                                      if (e.target.checked) {
-                                        return { ...prev, [player.id]: [...current, teamId] };
-                                      } else {
-                                        return { ...prev, [player.id]: current.filter((id) => id !== teamId) };
+                            {(() => {
+                              const ownedTeams = Object.entries(gameState.ownership)
+                                .filter(([, owner]) => owner === player.id)
+                                .map(([teamId]) => teamId as TeamId);
+                              return (
+                                <>
+                                  <strong>Teams ({ownedTeams.length}):</strong>
+                                  {ownedTeams.map((teamId) => (
+                                    <label key={teamId} style={{ display: 'block', marginLeft: '1rem' }}>
+                                      <input
+                                        type="checkbox"
+                                        checked={(selectedTeamsToRemove[player.id] || []).includes(teamId)}
+                                        onChange={(e) => {
+                                          setSelectedTeamsToRemove((prev) => {
+                                            const current = prev[player.id] || [];
+                                            if (e.target.checked) {
+                                              return { ...prev, [player.id]: [...current, teamId] };
+                                            } else {
+                                              return { ...prev, [player.id]: current.filter((id) => id !== teamId) };
+                                            }
+                                          });
+                                        }}
+                                      />
+                                      {teamId}
+                                    </label>
+                                  ))}
+                                  <button
+                                    onClick={() => {
+                                      const teams = selectedTeamsToRemove[player.id] || [];
+                                      if (teams.length > 0) {
+                                        onRemoveTeams(player.id, teams);
+                                        setSelectedTeamsToRemove((prev) => ({ ...prev, [player.id]: [] }));
                                       }
-                                    });
-                                  }}
-                                />
-                                {teamId}
-                              </label>
-                            ))}
-                            <button
-                              onClick={() => {
-                                const teams = selectedTeamsToRemove[player.id] || [];
-                                if (teams.length > 0) {
-                                  onRemoveTeams(player.id, teams);
-                                  setSelectedTeamsToRemove((prev) => ({ ...prev, [player.id]: [] }));
-                                }
-                              }}
-                              disabled={(selectedTeamsToRemove[player.id] || []).length === 0}
-                              style={{ marginTop: '0.25rem' }}
-                            >
-                              Remove Selected Teams
-                            </button>
+                                    }}
+                                    disabled={(selectedTeamsToRemove[player.id] || []).length === 0}
+                                    style={{ marginTop: '0.25rem' }}
+                                  >
+                                    Remove Selected Teams
+                                  </button>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       ))}
