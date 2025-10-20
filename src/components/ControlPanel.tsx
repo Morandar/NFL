@@ -334,31 +334,19 @@ export function ControlPanel({
                                 {teamId}
                               </label>
                             ))}
-                            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-                              <button
-                                onClick={() => {
-                                  const teams = selectedTeamsToRemove[player.id] || [];
-                                  if (teams.length > 0) {
-                                    onRemoveTeams(player.id, teams);
-                                    setSelectedTeamsToRemove((prev) => ({ ...prev, [player.id]: [] }));
-                                  }
-                                }}
-                                disabled={(selectedTeamsToRemove[player.id] || []).length === 0}
-                              >
-                                Remove Selected Teams
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (player.teamsOwned.length > 0) {
-                                    onRemoveTeams(player.id, player.teamsOwned);
-                                    setSelectedTeamsToRemove((prev) => ({ ...prev, [player.id]: [] }));
-                                  }
-                                }}
-                                disabled={player.teamsOwned.length === 0}
-                              >
-                                Remove All Teams
-                              </button>
-                            </div>
+                            <button
+                              onClick={() => {
+                                const teams = selectedTeamsToRemove[player.id] || [];
+                                if (teams.length > 0) {
+                                  onRemoveTeams(player.id, teams);
+                                  setSelectedTeamsToRemove((prev) => ({ ...prev, [player.id]: [] }));
+                                }
+                              }}
+                              disabled={(selectedTeamsToRemove[player.id] || []).length === 0}
+                              style={{ marginTop: '0.25rem' }}
+                            >
+                              Remove Selected Teams
+                            </button>
                           </div>
                         </div>
                       ))}
