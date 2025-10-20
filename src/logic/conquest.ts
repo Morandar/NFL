@@ -142,5 +142,11 @@ export function applyWeekResults(state: GameState, csvData: string): GameState {
     newState = applyRow(newState, row);
   }
 
+  // Update players' teamsOwned based on current ownership
+  newState.players = newState.players.map(player => ({
+    ...player,
+    teamsOwned: getPlayerTerritories(newState, player.id),
+  }));
+
   return newState;
 }
