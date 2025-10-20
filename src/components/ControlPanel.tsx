@@ -322,7 +322,7 @@ export function ControlPanel({
                                 <>
                                   <strong>Teams ({ownedTeams.length}):</strong>
                                   {ownedTeams.map((teamId) => (
-                                    <label key={teamId} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: '1rem' }}>
+                                    <label key={teamId} style={{ display: 'block', marginLeft: '0.5rem' }}>
                                       <input
                                         type="checkbox"
                                         checked={(selectedTeamsToRemove[player.id] || []).includes(teamId)}
@@ -337,7 +337,7 @@ export function ControlPanel({
                                           });
                                         }}
                                       />
-                                      <span>{teamId}</span>
+                                      {teamId}
                                     </label>
                                   ))}
                                   <button
