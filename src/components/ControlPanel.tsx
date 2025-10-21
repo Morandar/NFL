@@ -313,7 +313,7 @@ export function ControlPanel({
                             </select>
                             <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
                           </div>
-                          <div className="player-teams" style={{ marginLeft: '1rem' }}>
+                          <div className="player-teams">
                             {(() => {
                               const ownedTeams = Object.entries(gameState.ownership)
                                 .filter(([, owner]) => owner === player.id)
@@ -321,25 +321,27 @@ export function ControlPanel({
                               return (
                                 <>
                                   <strong>Teams ({ownedTeams.length}):</strong>
-                                  {ownedTeams.map((teamId) => (
-                                    <div key={teamId} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginLeft: '0.5rem' }}>
-                                      <input
-                                        type="checkbox"
-                                        checked={(selectedTeamsToRemove[player.id] || []).includes(teamId)}
-                                        onChange={(e) => {
-                                          setSelectedTeamsToRemove((prev) => {
-                                            const current = prev[player.id] || [];
-                                            if (e.target.checked) {
-                                              return { ...prev, [player.id]: [...current, teamId] };
-                                            } else {
-                                              return { ...prev, [player.id]: current.filter((id) => id !== teamId) };
-                                            }
-                                          });
-                                        }}
-                                      />
-                                      <span>{teamId}</span>
-                                    </div>
-                                  ))}
+                                  <div className="player-team-list">
+                                    {ownedTeams.map((teamId) => (
+                                      <label key={teamId} className="player-team-item">
+                                        <input
+                                          type="checkbox"
+                                          checked={(selectedTeamsToRemove[player.id] || []).includes(teamId)}
+                                          onChange={(e) => {
+                                            setSelectedTeamsToRemove((prev) => {
+                                              const current = prev[player.id] || [];
+                                              if (e.target.checked) {
+                                                return { ...prev, [player.id]: [...current, teamId] };
+                                              } else {
+                                                return { ...prev, [player.id]: current.filter((id) => id !== teamId) };
+                                              }
+                                            });
+                                          }}
+                                        />
+                                        <span>{teamId}</span>
+                                      </label>
+                                    ))}
+                                  </div>
                                   <button
                                     onClick={() => {
                                       const teams = selectedTeamsToRemove[player.id] || [];

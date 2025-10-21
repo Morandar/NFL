@@ -408,6 +408,32 @@ select:focus {
   align-self: flex-start;
 }
 
+.player-teams {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.player-team-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.player-team-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
 .info-message {
   color: #4ecdc4;
   font-size: 0.9rem;
