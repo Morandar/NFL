@@ -127,16 +127,33 @@ export function applyWeekResults(state: GameState, csvData: string): GameState {
         throw new Error(`Winner and loser must be provided in row: ${line}`);
       }
 
+      if (!(winner in state.ownership) || !(loser in state.ownership)) {
+        throw new Error(`Unknown NFL team code in row: ${line}`);
+      }
+
+      if (winner === loser) {
+        throw new Error(`Winner and loser cannot be the same team: ${line}`);
+      }
+
+      const parsedMargin = margin ? Number.parseInt(margin, 10) : undefined;
+      if (parsedMargin !== undefined && (Number.isNaN(parsedMargin) || parsedMargin < 0)) {
+        throw new Error(`Invalid margin value "${margin}" in row: ${line}`);
+      }
+
       return {
         week: weekNumber,
         winner: winner as TeamId,
         loser: loser as TeamId,
-        margin: margin ? Number.parseInt(margin, 10) : undefined,
+        margin: parsedMargin,
         isPlayoff: isPlayoff === 'true',
         isSuperBowl: isSuperBowl === 'true',
       } as ResultRow;
     })
     .filter((row) => row.week === state.week);
+
+  if (weekResults.length === 0) {
+    throw new Error(`CSV neobsahuje žádné výsledky pro týden ${state.week}.`);
+  }
 
   for (const row of weekResults) {
     newState = applyRow(newState, row);

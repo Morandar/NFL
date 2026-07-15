@@ -3,14 +3,14 @@ import ReactDOM from 'react-dom/client';
 import { MapBoard } from './components/MapBoard';
 import { StandingsCard } from './components/StandingsCard';
 import { TeamGrid } from './components/TeamGrid';
-import { loadState } from './state/persistence';
+import { loadPreviewState, loadState } from './state/persistence';
 import { GameState, TeamId } from './state/types';
 import { DEFAULT_MAP_REGIONS } from './data/mapRegions';
 import type { MapRegion } from './data/mapRegions';
 import { loadStoredRegions } from './data/regionStorage';
 import './styles.css';
 
-function PreviewApp() {
+export function PreviewApp() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<TeamId | null>(null);
   const [highlightPlayerId, setHighlightPlayerId] = useState<string | null>(null);
@@ -18,7 +18,7 @@ function PreviewApp() {
 
   useEffect(() => {
     const loadCurrentState = () => {
-      const state = loadState();
+      const state = loadPreviewState() ?? loadState();
       setGameState(state);
       setMapRegions(loadStoredRegions());
     };

@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-type GenericClient = SupabaseClient<any, 'public', any>;
+type GenericClient = SupabaseClient;
 
 let cachedClient: GenericClient | null = null;
 

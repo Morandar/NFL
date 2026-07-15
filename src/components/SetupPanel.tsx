@@ -47,17 +47,30 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
 
   return (
     <div className="setup-panel">
-      <h2>Game Setup</h2>
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">NOVÁ HRA</p>
+          <h2>Připravte draft</h2>
+          <p className="panel-description">Přidejte hráče a nastavte pravidla pro tuto sezónu.</p>
+        </div>
+        <span className="player-count">{players.length}/8 hráčů</span>
+      </div>
 
       <div className="section">
-        <h3>Add Players (2-8)</h3>
+        <div className="section-heading">
+          <div>
+            <span className="section-number">01</span>
+            <h3>Hráči</h3>
+          </div>
         <button
           onClick={addPlayer}
           disabled={players.length >= 8}
-          aria-label="Add player"
+          aria-label="Přidat hráče"
+          className="secondary-button"
         >
-          Add Player
+          + Přidat hráče
         </button>
+        </div>
 
         <div className="players-list">
           {players.map((player) => (
@@ -77,20 +90,25 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
       </div>
 
       <div className="section">
-        <h3>Settings</h3>
+        <div className="section-heading">
+          <div>
+            <span className="section-number">02</span>
+            <h3>Pravidla</h3>
+          </div>
+        </div>
 
         <label className="setting-row">
-          <span>Picks per player:</span>
+          <span>Počet týmů na hráče</span>
           <select
             value={settings.picksPerPlayer}
             onChange={(event) =>
               setSettings({ ...settings, picksPerPlayer: parseInt(event.target.value, 10) as 1 | 2 | 3 })
             }
-            aria-label="Picks per player"
+            aria-label="Počet týmů na hráče"
           >
-            <option value={1}>1 team</option>
-            <option value={2}>2 teams</option>
-            <option value={3}>3 teams</option>
+            <option value={1}>1 tým</option>
+            <option value={2}>2 týmy</option>
+            <option value={3}>3 týmy</option>
           </select>
         </label>
 
@@ -99,9 +117,9 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
             type="checkbox"
             checked={settings.useMarginRules}
             onChange={(event) => setSettings({ ...settings, useMarginRules: event.target.checked })}
-            aria-label="Use margin rules"
+            aria-label="Výhra o osm a více bodů"
           />
-          <span>Margin Rules (8+ points = extra capture)</span>
+          <span><strong>Výhra o 8+ bodů</strong><small>Jeden extra zábor území</small></span>
         </label>
 
         <label className="setting-row checkbox">
@@ -111,7 +129,7 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
             onChange={(event) => setSettings({ ...settings, playoffBoost: event.target.checked })}
             aria-label="Playoff boost"
           />
-          <span>Playoff Boost (+1 capture)</span>
+          <span><strong>Playoff boost</strong><small>Playoff výhra přidá jeden zábor</small></span>
         </label>
 
         <label className="setting-row checkbox">
@@ -121,7 +139,7 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
             onChange={(event) => setSettings({ ...settings, superBowlSweep: event.target.checked })}
             aria-label="Super Bowl sweep"
           />
-          <span>Super Bowl Sweep (winner takes all)</span>
+          <span><strong>Super Bowl sweep</strong><small>Vítěz získá všechna území soupeře</small></span>
         </label>
 
         <label className="setting-row checkbox">
@@ -131,13 +149,14 @@ export function SetupPanel({ onAddPlayers }: SetupPanelProps) {
             onChange={(event) => setSettings({ ...settings, lockDivisionRule: event.target.checked })}
             aria-label="Zakázat týmy ze stejné divize"
           />
-          <span>Zakázat draft týmů ze stejné divize</span>
+          <span><strong>Unikátní divize</strong><small>Nelze draftovat dva týmy ze stejné divize</small></span>
         </label>
       </div>
 
-      <button className="start-draft-btn" onClick={() => onAddPlayers(players, settings)} disabled={!canStartDraft} aria-label="Add players">
-        Add Players
+      <button className="start-draft-btn primary-button" onClick={() => onAddPlayers(players, settings)} disabled={!canStartDraft} aria-label="Pokračovat do lobby">
+        Pokračovat do lobby <span aria-hidden="true">→</span>
       </button>
+      {!canStartDraft && <p className="form-hint">Pro pokračování přidejte alespoň dva hráče.</p>}
     </div>
   );
 }

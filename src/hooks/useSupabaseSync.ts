@@ -1,224 +1,158 @@
-import { type Dispatch, type SetStateAction, useEffect, useMemo, useRef, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
-import { getSupabaseClient, SUPABASE_ENABLED } from '../lib/supabaseClient';
+import { getSupabaseClient } from '../lib/supabaseClient';
+import type { OnlineGameSession } from '../multiplayer/session';
 import type { GameState } from '../state/types';
+import { normalizeGameState } from '../state/schema';
 
 export type MultiplayerStatus = 'disabled' | 'connecting' | 'ready' | 'error';
 
-type GenericClient = SupabaseClient<any, 'public', any>;
-
-type GameSessionRow = {
-  id: string;
-  state: GameState;
-  updated_at: string;
-};
-
-type SessionHookResult = {
-  sessionId: string | null;
-  status: MultiplayerStatus;
-  error: string | null;
-  isEnabled: boolean;
-};
-
+type GameRow = { id: string; state: GameState; version: number; updated_at: string };
 
 export function useSupabaseSync(
   gameState: GameState,
   setGameState: Dispatch<SetStateAction<GameState>>,
-): SessionHookResult {
-  const isEnabled = SUPABASE_ENABLED;
-  const client = useMemo(() => getSupabaseClient(), []);
-  const sessionId = 'main';
-  const [status, setStatus] = useState<MultiplayerStatus>(() =>
-    isEnabled ? 'connecting' : 'disabled',
-  );
+  session: OnlineGameSession | null,
+): { sessionId: string | null; status: MultiplayerStatus; error: string | null; isEnabled: boolean } {
+  const client = getSupabaseClient();
+  const [status, setStatus] = useState<MultiplayerStatus>(session ? 'connecting' : 'disabled');
   const [error, setError] = useState<string | null>(null);
-
-  const lastSyncedAtRef = useRef<string | null>(null);
-  const skipNextPersistRef = useRef(false);
   const channelRef = useRef<RealtimeChannel | null>(null);
-  const gameStateRef = useRef(gameState);
+  const versionRef = useRef(session?.initialVersion ?? 0);
+  const skipPersistRef = useRef(true);
 
   useEffect(() => {
-    gameStateRef.current = gameState;
-  }, [gameState]);
+    versionRef.current = session?.initialVersion ?? 0;
+    skipPersistRef.current = true;
+    setStatus(session ? 'connecting' : 'disabled');
+    setError(null);
+  }, [session]);
 
   useEffect(() => {
-    if (!client || !sessionId || !isEnabled) {
-      return;
-    }
-
+    if (!client || !session) return;
     let mounted = true;
 
-    const init = async () => {
-      try {
-        setStatus('connecting');
-        setError(null);
-
-        const existing = await fetchSessionState(client, sessionId);
-
-        if (!mounted) return;
-
-        if (existing) {
-          lastSyncedAtRef.current = existing.updatedAt;
-          skipNextPersistRef.current = true;
-          setGameState(existing.state);
-        } else {
-          const timestamp = new Date().toISOString();
-          await upsertSessionState(client, sessionId, gameStateRef.current, timestamp);
-          if (!mounted) return;
-          lastSyncedAtRef.current = timestamp;
-        }
-
-        const channel = subscribeToSession(client, sessionId, (row) => {
-          if (!row) return;
-          if (row.updated_at === lastSyncedAtRef.current) {
-            return;
-          }
-          lastSyncedAtRef.current = row.updated_at;
-          skipNextPersistRef.current = true;
-          setGameState(row.state);
-        });
-
-        channelRef.current = channel;
-
-        channel.subscribe((event) => {
-          if (event === 'SUBSCRIBED') {
-            setStatus('ready');
-          }
-          if (event === 'CHANNEL_ERROR') {
-            setStatus('error');
-            setError('Realtime připojení k Supabase selhalo.');
-          }
-        });
-      } catch (fetchError) {
-        console.error('Supabase init failed', fetchError);
-        if (!mounted) return;
-        setStatus('error');
-        setError(normalizeError(fetchError));
-      }
+    const syncActiveMembers = async () => {
+      const names = await fetchActiveMembers(client, session.gameId);
+      if (!mounted) return;
+      setGameState((current) => {
+        if (current.connectedUsers.join('\u0000') === names.join('\u0000')) return current;
+        return { ...current, connectedUsers: names };
+      });
     };
 
-    init();
+    const channel = subscribeToGame(client, session.gameId, (row) => {
+      if (!mounted || row.version <= versionRef.current) return;
+      const normalized = normalizeGameState(row.state);
+      if (!normalized) {
+        setStatus('error');
+        setError('Server vrátil neplatný stav hry.');
+        return;
+      }
+      versionRef.current = row.version;
+      skipPersistRef.current = true;
+      setGameState(normalized);
+    }, () => void syncActiveMembers());
+    channelRef.current = channel;
+    channel.subscribe((event) => {
+      if (!mounted) return;
+      if (event === 'SUBSCRIBED') {
+        setStatus('ready');
+        void syncActiveMembers();
+      }
+      if (event === 'CHANNEL_ERROR' || event === 'TIMED_OUT') {
+        setStatus('error');
+        setError('Realtime připojení bylo přerušeno.');
+      }
+    });
+
+    const presenceTimer = window.setInterval(() => {
+      void client.rpc('touch_game_member', { target_game_id: session.gameId }).then(() => syncActiveMembers());
+    }, 30_000);
 
     return () => {
       mounted = false;
-      if (channelRef.current) {
-        void client.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
+      window.clearInterval(presenceTimer);
+      if (channelRef.current) void client.removeChannel(channelRef.current);
+      channelRef.current = null;
     };
-  }, [client, sessionId, isEnabled, setGameState]);
+  }, [client, session, setGameState]);
 
   useEffect(() => {
-    if (!client || !sessionId || !isEnabled) {
+    if (!client || !session || status !== 'ready') return;
+    if (skipPersistRef.current) {
+      skipPersistRef.current = false;
       return;
     }
-    if (status !== 'ready') {
-      return;
-    }
-    if (skipNextPersistRef.current) {
-      skipNextPersistRef.current = false;
-      return;
-    }
-
-    const timestamp = new Date().toISOString();
-    lastSyncedAtRef.current = timestamp;
 
     const timeout = window.setTimeout(async () => {
-      try {
-        await upsertSessionState(client, sessionId, gameState, timestamp);
-      } catch (persistError) {
-        console.error('Supabase persist failed', persistError);
-        setStatus('error');
-        setError(normalizeError(persistError));
+      const expectedVersion = versionRef.current;
+      const { data, error: updateError } = await client.rpc('update_game_state', {
+        target_game_id: session.gameId,
+        next_state: gameState,
+        expected_version: expectedVersion,
+      });
+      if (!updateError) {
+        const row = (data as unknown as Array<{ game_version: number }> | null)?.[0];
+        if (row) versionRef.current = row.game_version;
+        return;
       }
+
+      if (updateError.code === '40001') {
+        const latest = await fetchLatestGame(client, session.gameId);
+        if (latest) {
+          const normalized = normalizeGameState(latest.state);
+          if (!normalized) throw new Error('Server vrátil neplatný stav hry.');
+          versionRef.current = latest.version;
+          skipPersistRef.current = true;
+          setGameState(normalized);
+          setError('Hra se změnila na jiném zařízení; načetl se nejnovější stav.');
+        }
+        return;
+      }
+      setStatus('error');
+      setError(updateError.message);
     }, 250);
+    return () => window.clearTimeout(timeout);
+  }, [client, gameState, session, setGameState, status]);
 
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [client, sessionId, isEnabled, status, gameState]);
-
-  return { sessionId, status, error, isEnabled };
+  return { sessionId: session?.gameId ?? null, status, error, isEnabled: Boolean(session) };
 }
 
-
-
-
-async function fetchSessionState(
-  client: GenericClient,
-  sessionId: string,
-): Promise<{ state: GameState; updatedAt: string } | null> {
-  const { data, error } = await client
-    .from('game_sessions')
-    .select('state, updated_at')
-    .eq('id', sessionId)
-    .maybeSingle();
-
-  if (error) {
-    if (error.code === 'PGRST116') {
-      return null;
-    }
-    throw error;
-  }
-
-  if (!data) {
-    return null;
-  }
-
-  return {
-    state: data.state as GameState,
-    updatedAt: data.updated_at as string,
-  };
-}
-
-async function upsertSessionState(
-  client: GenericClient,
-  sessionId: string,
-  state: GameState,
-  updatedAt: string,
-): Promise<void> {
-  const { error } = await client
-    .from('game_sessions')
-    .upsert(
-      {
-        id: sessionId,
-        state,
-        updated_at: updatedAt,
-      },
-      { onConflict: 'id' },
-    );
-
-  if (error) {
-    throw error;
-  }
-}
-
-function subscribeToSession(
-  client: GenericClient,
-  sessionId: string,
-  onChange: (row: GameSessionRow | null) => void,
+function subscribeToGame(
+  client: SupabaseClient,
+  gameId: string,
+  onChange: (row: GameRow) => void,
+  onMembersChange: () => void,
 ): RealtimeChannel {
   return client
-    .channel(`game_sessions:${sessionId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'game_sessions',
-        filter: `id=eq.${sessionId}`,
-      },
-      (payload) => {
-        const row = payload.new as GameSessionRow | null;
-        onChange(row ?? null);
-      },
-    );
+    .channel(`game:${gameId}`)
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${gameId}`,
+    }, (payload) => onChange(payload.new as GameRow))
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'game_members', filter: `game_id=eq.${gameId}`,
+    }, onMembersChange);
 }
 
-function normalizeError(error: unknown): string {
-  if (error && typeof error === 'object' && 'message' in error) {
-    return String((error as { message: unknown }).message);
-  }
-  return 'Neznámá chyba při komunikaci se Supabase.';
+async function fetchLatestGame(client: SupabaseClient, gameId: string): Promise<GameRow | null> {
+  const { data, error } = await client
+    .from('games')
+    .select('id,state,version,updated_at')
+    .eq('id', gameId)
+    .maybeSingle();
+  if (error) throw error;
+  return data as GameRow | null;
+}
+
+async function fetchActiveMembers(client: SupabaseClient, gameId: string): Promise<string[]> {
+  const activeSince = new Date(Date.now() - 90_000).toISOString();
+  const { data, error } = await client
+    .from('game_members')
+    .select('display_name,last_seen_at')
+    .eq('game_id', gameId)
+    .gte('last_seen_at', activeSince)
+    .order('joined_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((member) => String(member.display_name));
 }

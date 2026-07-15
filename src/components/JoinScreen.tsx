@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Player, Settings } from '../state/types';
+import { Player } from '../state/types';
 
 interface JoinScreenProps {
   players: Player[];
   onClaimPlayer: (playerId: string) => void;
   isHost: boolean;
   allClaimed: boolean;
-  onStartDraft: (players: Player[], settings: Settings) => void;
+  onStartDraft: () => void;
   connectedUsers: string[];
   assignedUsers: string[];
   onAssignPlayer: (playerId: string, userId: string) => void;
@@ -26,33 +26,43 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
 
   return (
     <div className="join-screen">
-      <h2>Lobby</h2>
-      <div className="lobby-info">
-        <div className="connected-users">
-          <h3>Připojení uživatelé: {connectedUsers.join(', ')}</h3>
+      <div className="panel-heading lobby-heading">
+        <div>
+          <p className="eyebrow">HERNÍ LOBBY</p>
+          <h2>Rozdělte si hráče</h2>
+          <p className="panel-description">
+            {isHost ? 'Přiřaď účastníkům jejich slot a spusť draft.' : 'Vyber si volný hráčský slot.'}
+          </p>
         </div>
-        <div className="assigned-players">
-          <h3>Přiřazení hráči:</h3>
-          <ul>
-            {players.map(player => (
-              <li key={player.id}>
-                {player.name}: {player.userId || 'nepřiřazeno'}
-              </li>
-            ))}
-          </ul>
+        <div className="lobby-presence">
+          <span className="status-dot" aria-hidden="true" />
+          {connectedUsers.length} {connectedUsers.length === 1 ? 'připojený' : 'připojení'}
         </div>
       </div>
-      {!isHost && <p>Vyber si volný slot:</p>}
+
+      <div className="connected-strip" aria-label="Připojení uživatelé">
+        {connectedUsers.map((user) => <span key={user}>{user.slice(0, 1).toUpperCase()}<strong>{user}</strong></span>)}
+      </div>
+
+      <div className="lobby-section-title">
+        <span className="section-number">01</span>
+        <h3>Hráčské sloty</h3>
+        <span>{players.filter((player) => player.userId).length}/{players.length} obsazeno</span>
+      </div>
       <div className="available-players">
         {players.map((player) => (
-          <div key={player.id} className="player-slot">
+          <div key={player.id} className={`player-slot ${player.userId ? 'claimed' : ''}`}>
+            <span className="slot-number">{String(players.indexOf(player) + 1).padStart(2, '0')}</span>
             <span className="color-dot" style={{ backgroundColor: player.color }} />
-            <span>{player.name}</span>
+            <div className="slot-identity">
+              <strong>{player.name}</strong>
+              <small>{player.userId ? `Ovládá ${player.userId}` : 'Čeká na hráče'}</small>
+            </div>
             {player.userId ? (
               <>
-                <span>Claimed by {player.userId}</span>
+                <span className="claimed-badge">Obsazeno</span>
                 {isHost && (
-                  <button onClick={() => onUnclaimPlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
+                  <button onClick={() => onUnclaimPlayer(player.id)} className="ghost-button">
                     Uvolnit
                   </button>
                 )}
@@ -62,6 +72,7 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
                 {isHost ? (
                   <>
                     <select
+                      aria-label={`Přiřadit uživatele slotu ${player.name}`}
                       onChange={(e) => {
                         if (e.target.value) {
                           onAssignPlayer(player.id, e.target.value);
@@ -69,23 +80,23 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
                         }
                       }}
                     >
-                      <option value="">Přiřadit uživatele</option>
+                      <option value="">Vybrat uživatele</option>
                       {connectedUsers.filter(user => !assignedUsers.includes(user)).map((user) => (
                         <option key={user} value={user}>
                           {user}
                         </option>
                       ))}
                     </select>
-                    <button onClick={() => handleClaim(player.id)} style={{ marginLeft: '0.5rem' }}>
-                      Claim for me
+                    <button onClick={() => handleClaim(player.id)} className="secondary-button">
+                      Vzít pro sebe
                     </button>
-                    <button onClick={() => onRemovePlayer(player.id)} style={{ marginLeft: '0.5rem' }}>
-                      Odebrat
+                    <button onClick={() => onRemovePlayer(player.id)} className="icon-button danger" aria-label={`Odebrat ${player.name}`}>
+                      ×
                     </button>
                   </>
                 ) : (
-                  <button onClick={() => handleClaim(player.id)}>
-                    Claim
+                  <button onClick={() => handleClaim(player.id)} className="primary-button">
+                    Vybrat slot
                   </button>
                 )}
               </>
@@ -94,17 +105,18 @@ export function JoinScreen({ players, onClaimPlayer, isHost, allClaimed, onStart
         ))}
       </div>
       {isHost && (
-        <div style={{ marginTop: '1rem' }}>
-          <button onClick={onAddPlayer}>Přidat slot</button>
+        <div className="lobby-actions">
+          <button onClick={onAddPlayer} className="secondary-button">+ Přidat slot</button>
+          <button onClick={onStartDraft} className="primary-button" disabled={!allClaimed}>
+            Spustit draft <span aria-hidden="true">→</span>
+          </button>
         </div>
       )}
-      {isHost && allClaimed && (
-        <button onClick={() => onStartDraft([], { picksPerPlayer: 1, useMarginRules: false, playoffBoost: false, superBowlSweep: false, lockDivisionRule: false })}>
-          Start Draft
-        </button>
-      )}
       <div className="chat-section">
-        <h3>Chat</h3>
+        <div className="lobby-section-title">
+          <span className="section-number">02</span>
+          <h3>Chat</h3>
+        </div>
         <div className="chat-messages">
           {messages.slice(-10).map((msg, index) => (
             <div key={index} className="chat-message">

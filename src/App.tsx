@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { GameState, Player, Settings, TeamId } from './state/types';
-import { saveState, loadState, clearState } from './state/persistence';
+import { saveState, loadState, clearState, savePreviewState } from './state/persistence';
 import { SetupPanel } from './components/SetupPanel';
 import { DraftBoard } from './components/DraftBoard';
 import { MapBoard } from './components/MapBoard';
@@ -16,7 +16,13 @@ import { DEFAULT_MAP_REGIONS, MapRegion } from './data/mapRegions';
 import { clearStoredRegions, loadStoredRegions, persistRegions } from './data/regionStorage';
 import { NFL_TEAM_MAP } from './data/nflTeams';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
-import { getSupabaseClient } from './lib/supabaseClient';
+import { SUPABASE_ENABLED } from './lib/supabaseClient';
+import { createOnlineGame, joinOnlineGame, type OnlineGameSession } from './multiplayer/session';
+import type { User } from '@supabase/supabase-js';
+import { AuthScreen } from './components/AuthScreen';
+import { LeagueHub } from './components/LeagueHub';
+import { getCurrentUser, observeAuth } from './auth/auth';
+import type { LeagueContext } from './leagues/service';
 import './styles.css';
 
 const RANDOM_COLORS = [
@@ -94,6 +100,11 @@ function createEmptyOwnership(): Record<TeamId, string | null> {
 }
 
 function App() {
+  const [onlineSession, setOnlineSession] = useState<OnlineGameSession | null>(null);
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(SUPABASE_ENABLED);
+  const [localMode, setLocalMode] = useState(false);
+  const [leagueContext, setLeagueContext] = useState<LeagueContext | null>(null);
   const [username, setUsername] = useState<string | null>(() => {
     try {
       return localStorage.getItem('nfl-username') || null;
@@ -136,6 +147,57 @@ function App() {
     }));
   };
 
+  const handleCreateOnlineGame = async (name: string) => {
+    if (!leagueContext) throw new Error('Nejdřív vyber ligu a sezonu.');
+    const freshState: GameState = {
+      ...initialState,
+      ownership: createEmptyOwnership(),
+      hostId: name,
+      connectedUsers: [name],
+    };
+    const created = await createOnlineGame(
+      name,
+      freshState,
+      leagueContext.leagueId,
+      leagueContext.seasonId,
+    );
+    localStorage.setItem('nfl-username', name);
+    setUsername(name);
+    setGameState(created.state);
+    setOnlineSession(created.session);
+  };
+
+  useEffect(() => {
+    if (!SUPABASE_ENABLED) return;
+    let mounted = true;
+    void getCurrentUser().then((user) => {
+      if (mounted) { setAuthUser(user); setAuthLoading(false); }
+    });
+    const unsubscribe = observeAuth((_event, session) => {
+      if (!mounted) return;
+      setAuthUser(session?.user ?? null);
+      setAuthLoading(false);
+      if (!session) {
+        setLeagueContext(null);
+        setOnlineSession(null);
+      }
+    });
+    return () => { mounted = false; unsubscribe(); };
+  }, []);
+
+  const handleJoinOnlineGame = async (name: string, code: string) => {
+    const joined = await joinOnlineGame(name, code);
+    localStorage.setItem('nfl-username', name);
+    setUsername(name);
+    setGameState({
+      ...joined.state,
+      connectedUsers: joined.state.connectedUsers.includes(name)
+        ? joined.state.connectedUsers
+        : [...joined.state.connectedUsers, name],
+    });
+    setOnlineSession(joined.session);
+  };
+
   const handleSendMessage = (text: string) => {
     if (!username || !text.trim()) return;
     setGameState(prev => ({
@@ -158,17 +220,21 @@ function App() {
   }, [gameState.hostId, username, gameState.players.length]);
 
 
-  const { sessionId, status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
+  const { status: multiplayerStatus, error: multiplayerError, isEnabled: isMultiplayerEnabled } = useSupabaseSync(
     gameState,
     setGameState,
+    onlineSession,
   );
 
-  const isHost = username && gameState.connectedUsers[0] === username;
+  const isHost = onlineSession
+    ? onlineSession.userId === onlineSession.hostUserId
+    : Boolean(username && gameState.connectedUsers[0] === username);
   const userPlayerIds = gameState.players.filter(p => p.userId === username).map(p => p.id);
 
   useEffect(() => {
-    saveState(gameState);
-  }, [gameState]);
+    if (!onlineSession) saveState(gameState);
+    savePreviewState(gameState);
+  }, [gameState, onlineSession]);
 
   useEffect(() => {
     persistRegions(mapRegions);
@@ -392,11 +458,12 @@ function App() {
   };
 
   const handleResetSession = async () => {
-    if (sessionId) {
-      // @ts-ignore
-      await getSupabaseClient().from('game_sessions').delete().eq('id', sessionId);
-    }
-    setGameState(initialState);
+    setGameState({
+      ...initialState,
+      ownership: createEmptyOwnership(),
+      hostId: username,
+      connectedUsers: username ? [username] : [],
+    });
     setViewMode('map');
     setSelectedTeamId(null);
     setHighlightPlayerId(null);
@@ -415,20 +482,57 @@ function App() {
     ? gameState.players.find((player) => player.id === highlightPlayerId)
     : undefined;
 
+  if (SUPABASE_ENABLED && !localMode) {
+    if (authLoading) return <div className="app-loading"><div className="brand-mark">NC</div><p>Načítám profil…</p></div>;
+    if (!authUser) return <AuthScreen onLocalMode={() => setLocalMode(true)} />;
+    if (!leagueContext) {
+      return (
+        <LeagueHub
+          user={authUser}
+          onSelect={(league) => { setLeagueContext(league); setUsername(null); }}
+          onSignedOut={() => setAuthUser(null)}
+        />
+      );
+    }
+  }
+
   if (!username) {
-    return <Login onLogin={handleLogin} />;
+    return (
+      <Login
+        onLocalLogin={handleLogin}
+        onCreateGame={handleCreateOnlineGame}
+        onJoinGame={handleJoinOnlineGame}
+        onlineEnabled={SUPABASE_ENABLED && !localMode && Boolean(leagueContext)}
+        leagueName={leagueContext?.leagueName}
+        availableGames={leagueContext?.games}
+        onBackToLeagues={leagueContext ? () => setLeagueContext(null) : undefined}
+      />
+    );
   }
 
   return (
     <div className="app">
       <header className="app-header">
-        <h1>NFL Conquest Map</h1>
+        <div className="app-brand">
+          <div className="app-brand-mark" aria-hidden="true">NC</div>
+          <div>
+            <p className="eyebrow">NFL GAME NIGHT</p>
+            <h1>Conquest</h1>
+          </div>
+        </div>
         <div className="user-info">
-          <span>Přihlášen: {username}</span>
+          <div className="connection-pill">
+            <span className="status-dot" aria-hidden="true" />
+            {onlineSession ? `Místnost ${onlineSession.code}` : 'Lokální hra'}
+          </div>
+          <div className="user-avatar" aria-hidden="true">{username.slice(0, 1).toUpperCase()}</div>
+          <span className="user-name">{username}</span>
           <button onClick={() => {
             setUsername(null);
+            setOnlineSession(null);
+            if (SUPABASE_ENABLED && !localMode) setLeagueContext(null);
             localStorage.removeItem('nfl-username');
-          }}>Odhlásit</button>
+          }} className="ghost-button">Opustit hru</button>
         </div>
       </header>
 
@@ -475,7 +579,7 @@ function App() {
             onStartDraft={handleStartDraft}
             connectedUsers={gameState.connectedUsers}
             assignedUsers={gameState.players.filter(p => p.userId).map(p => p.userId!)}
-            onAssignPlayer={handleClaimPlayer}
+            onAssignPlayer={handleAssignPlayer}
             onRemovePlayer={handleRemovePlayer}
             onUnclaimPlayer={handleUnclaimPlayer}
             onAddPlayer={handleAddPlayer}

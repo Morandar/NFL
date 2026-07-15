@@ -17,23 +17,20 @@ npm run build
 
 ## Supabase Multiplayer
 
-1. Create a `.env.local` (or `.env`) file and expose your Supabase credentials to Vite:
+Multiplayer uses permanent Supabase accounts, leagues, seasons, six-character game codes, Row Level Security and optimistic state versioning. Returning players can reopen games from their league dashboard.
+
+1. Create a new Supabase project. Keep anonymous sign-ins disabled.
+2. Run the migration in `supabase/migrations/202607150001_initial_multiplayer.sql` using the Supabase CLI (`supabase db push`) or the SQL editor.
+3. Create a `.env.local` from `.env.example`:
    ```ini
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
    ```
-2. Inside Supabase, create the table used for game sessions and enable Realtime on it:
-   ```sql
-   create table if not exists public.game_sessions (
-     id text primary key,
-     state jsonb not null,
-     updated_at timestamptz not null default timezone('utc', now())
-   );
-   ```
-   - If Row Level Security is enabled, allow anonymous reads and upserts on `game_sessions`.
-   - In the Supabase Dashboard → Realtime, enable replication for the `game_sessions` table.
-3. Start the app (`npm run dev`). A session ID and shareable URL appear in the control panel once Supabase connects. Share the link with other players to join the same lobby.
-4. If Supabase variables are missing, the app automatically falls back to local-only persistence.
+4. In Supabase Authentication enable Email and, as desired, Google and Apple. Add the local and Vercel domains to URL Configuration / Redirect URLs.
+5. Start the app (`npm run dev`), sign in, create a league and share its eight-character invite code. Games remain attached to the league and season.
+6. Without these variables the app offers a local-only mode backed by versioned LocalStorage.
+
+The browser receives only the public anon key. Never expose the Supabase service-role key in Vite or Vercel variables.
 
 ## How to Play
 
@@ -105,7 +102,7 @@ Open a projection-friendly preview window:
 ## Technical Details
 
 Built with:
-- React 18 + TypeScript
+- React 19 + TypeScript
 - Vite for fast development
 - LocalStorage for persistence
 - SVG overlay for interactive territories
@@ -122,6 +119,9 @@ Place these files in `src/assets/`:
 ```bash
 # Run linter
 npm run lint
+
+# Run automated tests
+npm test
 
 # Format code
 npm run format

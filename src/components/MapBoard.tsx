@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { GameState, TeamId } from '../state/types';
 import { getPlayerTerritories } from '../logic/conquest';
 import { NFL_TEAMS } from '../data/nflTeams';
-import mapBase from '../assets/IMG_7333.png';
+import mapBase from '../assets/IMG_7333.webp';
 import { TeamGrid } from './TeamGrid';
 import type { MapRegion } from '../data/mapRegions';
 import { TEAM_LOGOS, TEAM_LOGOS_BW } from '../data/teamLogos';

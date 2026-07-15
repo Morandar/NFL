@@ -6,6 +6,30 @@ import teamGridAssetUrl from '../assets/nfl_team_grid.svg?url';
 import { NFL_TEAMS } from '../data/nflTeams';
 import type { MultiplayerStatus } from '../hooks/useSupabaseSync';
 
+type ManualRow = {
+  id: string;
+  week: string;
+  winner: TeamId | '';
+  winnerScore: string;
+  loser: TeamId | '';
+  loserScore: string;
+  isPlayoff: boolean;
+  isSuperBowl: boolean;
+};
+
+function createEmptyRow(week: number): ManualRow {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    week: week.toString(),
+    winner: '',
+    winnerScore: '',
+    loser: '',
+    loserScore: '',
+    isPlayoff: false,
+    isSuperBowl: false,
+  };
+}
+
 type ViewMode = 'map' | 'grid';
 
 interface ControlPanelProps {
@@ -71,28 +95,6 @@ export function ControlPanel({
   const [exportMessage, setExportMessage] = useState<string | null>(null);
   const [exportValue, setExportValue] = useState('');
   const [useManualEntry, setUseManualEntry] = useState(true);
-
-  type ManualRow = {
-    id: string;
-    week: string;
-    winner: TeamId | '';
-    winnerScore: string;
-    loser: TeamId | '';
-    loserScore: string;
-    isPlayoff: boolean;
-    isSuperBowl: boolean;
-  };
-
-  const createEmptyRow = (week: number): ManualRow => ({
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    week: week.toString(),
-    winner: '',
-    winnerScore: '',
-    loser: '',
-    loserScore: '',
-    isPlayoff: false,
-    isSuperBowl: false,
-  });
 
   const [manualRows, setManualRows] = useState<ManualRow[]>([createEmptyRow(gameState.week)]);
   const [selectedTeamsToRemove, setSelectedTeamsToRemove] = useState<Record<string, TeamId[]>>({});
@@ -180,14 +182,17 @@ export function ControlPanel({
 
   const manualRowsValid = manualRows.every(
     (row) =>
-      row.week.trim() !== '' &&
+      parseInt(row.week, 10) === gameState.week &&
       row.winner &&
       row.winnerScore.trim() !== '' &&
       row.loser &&
       row.loserScore.trim() !== '' &&
       row.winner !== row.loser &&
-      !isNaN(parseInt(row.winnerScore)) &&
-      !isNaN(parseInt(row.loserScore)),
+      !isNaN(parseInt(row.winnerScore, 10)) &&
+      !isNaN(parseInt(row.loserScore, 10)) &&
+      parseInt(row.winnerScore, 10) >= 0 &&
+      parseInt(row.loserScore, 10) >= 0 &&
+      parseInt(row.winnerScore, 10) > parseInt(row.loserScore, 10),
   );
 
   const manualRowsToCsv = () => {
@@ -209,7 +214,7 @@ export function ControlPanel({
 
   const handleApplyManualRows = () => {
     if (!manualRowsValid) {
-      setError('Vyplň týden, vítěze a poraženého u každého zápasu.');
+      setError(`Zkontroluj týden ${gameState.week}, týmy a skóre. Vítěz musí mít vyšší skóre.`);
       return;
     }
 
@@ -230,27 +235,34 @@ export function ControlPanel({
 
   return (
     <div className="control-panel">
-      <h3>Control Panel</h3>
-
-      <div className="multiplayer-status-card">
-        <div className="multiplayer-header">
-          <strong>Multiplayer:</strong> {multiplayerStatusLabel}
+      <div className="control-panel-heading">
+        <div>
+          <p className="eyebrow">SEZÓNA · TÝDEN {gameState.week}</p>
+          <h3>Centrum hry</h3>
         </div>
+        <button onClick={openPreview} className="secondary-button">Otevřít projekci</button>
+      </div>
+
+      <details className="admin-disclosure multiplayer-status-card">
+        <summary className="multiplayer-header">
+          <span><i className={`status-dot ${multiplayerStatus}`} aria-hidden="true" /> Připojení</span>
+          <strong>{multiplayerStatusLabel}</strong>
+        </summary>
         {isMultiplayerEnabled ? (
           <div className="multiplayer-body">
             {multiplayerError && <div className="error-message">{multiplayerError}</div>}
             {isHost && (
               <>
                 <button type="button" onClick={onReset} className="reset-btn" style={{ marginTop: '0.5rem' }}>
-                  Reset Game
+                  Nová hra
                 </button>
                 <button type="button" onClick={onResetSession} className="reset-btn" style={{ marginTop: '0.5rem' }}>
-                  Reset Session
+                  Vymazat online relaci
                 </button>
                 {gameState.players.length > 0 && (
                   <>
                     <div className="player-selection-row" style={{ marginTop: '1rem' }}>
-                      <span>Assign to me:</span>
+                      <span>Přiřadit mně:</span>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                         {gameState.players.map((player) => (
                           <label key={player.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -267,7 +279,7 @@ export function ControlPanel({
                     </div>
                     {userPlayerIds.length > 0 && (
                       <div className="player-names-row" style={{ marginTop: '0.5rem' }}>
-                        <span>My names:</span>
+                        <span>Moje jména:</span>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                           {userPlayerIds.map((playerId) => {
                             const player = gameState.players.find((p) => p.id === playerId);
@@ -286,7 +298,7 @@ export function ControlPanel({
                       </div>
                     )}
                     <div className="player-management" style={{ marginTop: '1rem' }}>
-                      <h4>Manage Players</h4>
+                      <h4>Správa hráčů</h4>
                       {gameState.players.map((player) => (
                         <div key={player.id} className="player-manage-row" style={{ marginBottom: '1rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
@@ -311,7 +323,7 @@ export function ControlPanel({
                                 </option>
                               ))}
                             </select>
-                            <button onClick={() => onRemovePlayer(player.id)}>Remove</button>
+                            <button onClick={() => onRemovePlayer(player.id)}>Odebrat</button>
                           </div>
                           <div className="player-teams">
                             {(() => {
@@ -320,7 +332,7 @@ export function ControlPanel({
                                 .map(([teamId]) => teamId as TeamId);
                               return (
                                 <>
-                                  <strong>Teams ({ownedTeams.length}):</strong>
+                                  <strong>Týmy ({ownedTeams.length}):</strong>
                                   <div className="player-team-list">
                                     {ownedTeams.map((teamId) => (
                                       <label key={teamId} className="player-team-item">
@@ -353,7 +365,7 @@ export function ControlPanel({
                                     disabled={(selectedTeamsToRemove[player.id] || []).length === 0}
                                     style={{ marginTop: '0.25rem' }}
                                   >
-                                    Remove Selected Teams
+                                    Odebrat označené týmy
                                   </button>
                                 </>
                               );
@@ -372,10 +384,10 @@ export function ControlPanel({
             <p>Supabase není nakonfigurováno, multiplayer zůstává jen lokální.</p>
           </div>
         )}
-      </div>
+      </details>
 
       <div className="week-info">
-        <strong>Current Week:</strong>
+        <div><span className="section-number">01</span><strong>Aktuální týden</strong></div>
         {isHost ? (
           <>
             <input
@@ -383,10 +395,10 @@ export function ControlPanel({
               value={gameState.week}
               onChange={(e) => onSetWeek(parseInt(e.target.value) || 1)}
               min={1}
-              style={{ width: '60px', marginLeft: '0.5rem' }}
+              aria-label="Aktuální týden"
             />
-            <button onClick={() => onSetWeek(gameState.week + 1)} style={{ marginLeft: '0.5rem' }}>
-              Next Week
+            <button onClick={() => onSetWeek(gameState.week + 1)} className="primary-button">
+              Další týden →
             </button>
           </>
         ) : (
@@ -394,29 +406,31 @@ export function ControlPanel({
         )}
       </div>
 
-      <div className="view-mode-section" aria-label="Map display mode selector">
-        <span className="section-label">Vizualizace mapy:</span>
+      <div className="season-toolbar">
+      <div className="view-mode-section" aria-label="Zobrazení herní mapy">
+        <span className="section-label">Zobrazení</span>
         <div className="view-toggle">
           <button
             type="button"
             className={viewMode === 'map' ? 'active' : ''}
             onClick={() => onChangeViewMode('map')}
           >
-            Geografická mapa
+            Mapa
           </button>
           <button
             type="button"
             className={viewMode === 'grid' ? 'active' : ''}
             onClick={() => onChangeViewMode('grid')}
           >
-            Týmová mřížka
+            Mřížka
           </button>
         </div>
       </div>
 
       <div className="team-jump">
-        <span className="section-label">Rychlý výběr týmu:</span>
+        <span className="section-label">Detail týmu</span>
         <select
+          aria-label="Rychlý výběr týmu"
           value={selectedTeamId ?? ''}
           onChange={(event) => onSelectTeam(event.target.value ? (event.target.value as TeamId) : null)}
         >
@@ -427,6 +441,7 @@ export function ControlPanel({
             </option>
           ))}
         </select>
+      </div>
       </div>
 
       {(selectedTeamId || highlightPlayerId) && (
@@ -457,8 +472,8 @@ export function ControlPanel({
       )}
 
       {isHost && (
-        <div className="asset-links">
-        <span className="section-label">Práce s podklady:</span>
+        <details className="admin-disclosure asset-links">
+        <summary>Podklady mapy</summary>
         <div className="asset-buttons">
           <button type="button" onClick={() => openAsset(maskPreviewUrl, 'nfl-conquest-mask')}>
             Náhled masky (SVG)
@@ -470,12 +485,13 @@ export function ControlPanel({
             Otevřít týmovou mřížku
           </button>
         </div>
-      </div>
+      </details>
       )}
 
       {isHost && (
-        <div className="csv-section">
-          <label htmlFor="csv-input">CSV Data:</label>
+        <details className="admin-disclosure csv-section">
+          <summary>Importovat výsledky přes CSV</summary>
+          <label htmlFor="csv-input">CSV data</label>
           <textarea
             id="csv-input"
             value={csvData}
@@ -484,7 +500,7 @@ export function ControlPanel({
               'week,winner,loser,margin,isPlayoff,isSuperBowl\n1,KC,CIN,7,false,false\n1,SF,DAL,10,false,false'
             }
             rows={6}
-            aria-label="CSV game results input"
+            aria-label="CSV výsledky zápasů"
           />
           {error && <div className="error-message">{error}</div>}
 
@@ -492,24 +508,21 @@ export function ControlPanel({
             <button
               onClick={handleApplyCsv}
               disabled={!csvData.trim()}
-              aria-label="Apply CSV results for current week"
+              aria-label={`Použít CSV výsledky pro týden ${gameState.week}`}
             >
-              Apply CSV for Week {gameState.week}
+              Zapsat výsledky týdne {gameState.week}
             </button>
-            <button onClick={openPreview} aria-label="Open preview window">
-              Open Preview
-            </button>
-            {isHost && (
-              <button onClick={onReset} className="reset-btn" aria-label="Reset game">
-                Reset to Setup
-              </button>
-            )}
           </div>
-        </div>
+        </details>
       )}
 
       {isHost && (
          <div className="manual-results">
+          <div className="results-heading">
+            <div>
+              <span className="section-number">02</span>
+              <div><h4>Výsledky zápasů</h4><p>Zapiš odehrané zápasy a mapa se okamžitě přepočítá.</p></div>
+            </div>
           <button
             type="button"
             className="toggle-manual-btn"
@@ -524,6 +537,7 @@ export function ControlPanel({
           >
             {useManualEntry ? 'Skrýt ruční zadání' : 'Přidat zápasy ručně'}
           </button>
+          </div>
 
           {useManualEntry && (
             <div className="manual-results-table-wrapper">
@@ -630,8 +644,8 @@ export function ControlPanel({
       )}
 
       {isHost && (
-        <div className="admin-tools">
-        <span className="section-label">Admin Tools</span>
+        <details className="admin-disclosure admin-tools">
+        <summary>Pokročilá správa mapy</summary>
         <div className="admin-actions">
           <button type="button" className={isAdminMode ? 'active' : ''} onClick={onToggleAdmin}>
             {isAdminMode ? 'Ukončit úpravy mapy' : 'Upravit pozice týmů'}
@@ -656,15 +670,18 @@ export function ControlPanel({
             {exportMessage && <div className="export-message">{exportMessage}</div>}
           </div>
         )}
-      </div>
+      </details>
       )}
 
       <div className="log-section">
-        <h4>Game Log</h4>
+        <div className="results-heading">
+          <div><span className="section-number">03</span><div><h4>Průběh hry</h4><p>Poslední změny vlastnictví území.</p></div></div>
+        </div>
         <div className="game-log">
-          {gameState.log.slice(-10).map((entry, index) => (
+          {gameState.log.length === 0 && <div className="empty-log">Zatím se nic nestalo.</div>}
+          {gameState.log.slice(-10).reverse().map((entry, index) => (
             <div key={index} className="log-entry">
-              {entry}
+              <span>{String(gameState.log.length - index).padStart(2, '0')}</span>{entry}
             </div>
           ))}
         </div>

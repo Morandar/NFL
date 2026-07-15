@@ -1,43 +1,142 @@
 import { useState } from 'react';
+import type { LeagueGame } from '../leagues/service';
 
 interface LoginProps {
-  onLogin: (username: string) => void;
+  onLocalLogin: (username: string) => void;
+  onCreateGame: (username: string) => Promise<void>;
+  onJoinGame: (username: string, code: string) => Promise<void>;
+  onlineEnabled: boolean;
+  leagueName?: string;
+  availableGames?: LeagueGame[];
+  onBackToLeagues?: () => void;
 }
 
-export function Login({ onLogin }: LoginProps) {
+export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues }: LoginProps) {
   const [username, setUsername] = useState('');
+  const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
+  const [loadingAction, setLoadingAction] = useState<'create' | 'join' | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateName = (): string | null => {
     const trimmed = username.trim();
     if (!trimmed) {
       setError('Zadejte uživatelské jméno');
-      return;
+      return null;
     }
     if (trimmed.length < 2) {
       setError('Uživatelské jméno musí mít alespoň 2 znaky');
-      return;
+      return null;
     }
     setError('');
-    onLogin(trimmed);
+    return trimmed;
+  };
+
+  const runOnlineAction = async (action: 'create' | 'join', codeOverride?: string) => {
+    const name = validateName();
+    if (!name) return;
+    const code = codeOverride ?? gameCode;
+    if (action === 'join' && code.trim().length !== 6) {
+      setError('Kód hry musí mít šest znaků.');
+      return;
+    }
+    setLoadingAction(action);
+    try {
+      if (action === 'create') await onCreateGame(name);
+      else await onJoinGame(name, code);
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : 'Připojení ke hře se nezdařilo.');
+    } finally {
+      setLoadingAction(null);
+    }
   };
 
   return (
-    <div className="login">
-      <h2>Připojit se k hře</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder="Uživatelské jméno"
-          required
-          maxLength={20}
-        />
-        <button type="submit">Připojit se</button>
-      </form>
-      {error && <div className="error-message">{error}</div>}
-    </div>
+    <main className="login-page">
+      <section className="login-hero" aria-labelledby="login-title">
+        <div className="brand-mark" aria-hidden="true">NC</div>
+        <p className="eyebrow">NFL GAME NIGHT</p>
+        <h1 id="login-title">Ovládni mapu.<br />Týden po týdnu.</h1>
+        <p className="login-lead">
+          Draftuj týmy, vyhrávej zápasy a rozšiřuj svoje území napříč celou ligou.
+        </p>
+        <div className="feature-row" aria-label="Hlavní funkce">
+          <span>32 týmů</span>
+          <span>Živá mapa</span>
+          <span>Hra s přáteli</span>
+        </div>
+      </section>
+
+      <section className="login-card" aria-label="Připojení ke hře">
+        <div className="login-card-heading">
+          <span className="step-pill">01</span>
+          <div>
+            <p className="eyebrow">VSTUP DO HRY</p>
+            <h2>{leagueName ?? 'Jak ti budeme říkat?'}</h2>
+          </div>
+        </div>
+        <form onSubmit={(event) => { event.preventDefault(); void runOnlineAction('create'); }}>
+          <label htmlFor="username">Hráčské jméno</label>
+          <input
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Např. Kuba"
+            autoComplete="nickname"
+            required
+            maxLength={20}
+            aria-describedby={error ? 'username-error' : undefined}
+          />
+          {onlineEnabled && (
+            <>
+              {availableGames.length > 0 && (
+                <div className="saved-games">
+                  <span className="field-label">Rozehrané hry</span>
+                  {availableGames.map((game) => (
+                    <button
+                      key={game.id}
+                      type="button"
+                      className="saved-game-button"
+                      disabled={loadingAction !== null}
+                      onClick={() => { setGameCode(game.code); void runOnlineAction('join', game.code); }}
+                    >
+                      <span><strong>{game.code}</strong><small>{game.status === 'completed' ? 'Dokončená' : 'Rozehraná'}</small></span>
+                      <span>Pokračovat →</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button type="submit" className="primary-button" disabled={loadingAction !== null}>
+                {loadingAction === 'create' ? 'Vytvářím…' : 'Vytvořit novou hru'} <span aria-hidden="true">→</span>
+              </button>
+              <div className="login-divider"><span>nebo se připoj</span></div>
+              <label htmlFor="game-code">Kód hry</label>
+              <div className="join-code-row">
+                <input
+                  id="game-code"
+                  value={gameCode}
+                  onChange={(event) => setGameCode(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6))}
+                  placeholder="ABC123"
+                  autoComplete="off"
+                  maxLength={6}
+                />
+                <button type="button" onClick={() => void runOnlineAction('join')} disabled={loadingAction !== null}>
+                  {loadingAction === 'join' ? 'Připojuji…' : 'Připojit'}
+                </button>
+              </div>
+            </>
+          )}
+          {error && <div id="username-error" className="error-message">{error}</div>}
+          <button type="button" className={onlineEnabled ? 'local-mode-button' : 'primary-button'} onClick={() => {
+            const name = validateName();
+            if (name) onLocalLogin(name);
+          }}>
+            {onlineEnabled ? 'Pokračovat pouze lokálně' : <>Pokračovat <span aria-hidden="true">→</span></>}
+          </button>
+          {onlineEnabled && onBackToLeagues && <button type="button" className="ghost-button back-to-leagues" onClick={onBackToLeagues}>← Zpět na moje ligy</button>}
+        </form>
+        <p className="login-note">{onlineEnabled ? 'Hra je trvale propojená s tvým účtem a ligou.' : 'Online režim se aktivuje po nastavení nového Supabase.'}</p>
+      </section>
+    </main>
   );
 }

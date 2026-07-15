@@ -51,7 +51,7 @@ export function TeamOwnershipCard({
         </div>
         <div className="team-identity">
           <h3>{team ? `${team.city} ${team.name}` : teamId}</h3>
-          <p>{team ? `${team.conference} ${team.division}` : 'Unknown division'}</p>
+          <p>{team ? `${team.conference} · ${team.division}` : 'Neznámá divize'}</p>
         </div>
       </div>
 

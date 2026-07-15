@@ -6,7 +6,7 @@ const TEAM_IDS: TeamId[] = [
 ];
 
 const logoModules = import.meta.glob<string>(
-  '../assets/team-logos/**/*.{svg,png}',
+  '../assets/team-logos/**/*.{svg,webp}',
   { eager: true, import: 'default' },
 );
 
@@ -23,7 +23,7 @@ const resolveTeamId = (filePath: string): TeamId | null => {
       return id;
     }
   }
-  const match = upper.match(/\/([A-Z]{2,4})BW?\.(PNG|SVG)$/);
+  const match = upper.match(/\/([A-Z]{2,4})BW?\.(WEBP|SVG)$/);
   if (match) {
     return match[1] as TeamId;
   }
