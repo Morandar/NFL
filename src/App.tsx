@@ -506,6 +506,11 @@ function App() {
         leagueName={leagueContext?.leagueName}
         availableGames={leagueContext?.games}
         onBackToLeagues={leagueContext ? () => setLeagueContext(null) : undefined}
+        onBackToSignIn={SUPABASE_ENABLED && localMode ? () => {
+          setUsername(null);
+          setLocalMode(false);
+          localStorage.removeItem('nfl-username');
+        } : undefined}
       />
     );
   }
@@ -530,9 +535,12 @@ function App() {
           <button onClick={() => {
             setUsername(null);
             setOnlineSession(null);
-            if (SUPABASE_ENABLED && !localMode) setLeagueContext(null);
+            if (SUPABASE_ENABLED) {
+              if (localMode) setLocalMode(false);
+              else setLeagueContext(null);
+            }
             localStorage.removeItem('nfl-username');
-          }} className="ghost-button">Opustit hru</button>
+          }} className="ghost-button">{localMode && SUPABASE_ENABLED ? 'Zpět na přihlášení' : 'Opustit hru'}</button>
         </div>
       </header>
 

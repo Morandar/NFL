@@ -9,9 +9,10 @@ interface LoginProps {
   leagueName?: string;
   availableGames?: LeagueGame[];
   onBackToLeagues?: () => void;
+  onBackToSignIn?: () => void;
 }
 
-export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues }: LoginProps) {
+export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues, onBackToSignIn }: LoginProps) {
   const [username, setUsername] = useState('');
   const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
@@ -134,6 +135,7 @@ export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, l
             {onlineEnabled ? 'Pokračovat pouze lokálně' : <>Pokračovat <span aria-hidden="true">→</span></>}
           </button>
           {onlineEnabled && onBackToLeagues && <button type="button" className="ghost-button back-to-leagues" onClick={onBackToLeagues}>← Zpět na moje ligy</button>}
+          {!onlineEnabled && onBackToSignIn && <button type="button" className="ghost-button back-to-leagues" onClick={onBackToSignIn}>← Zpět na přihlášení</button>}
         </form>
         <p className="login-note">{onlineEnabled ? 'Hra je trvale propojená s tvým účtem a ligou.' : 'Online režim se aktivuje po nastavení nového Supabase.'}</p>
       </section>

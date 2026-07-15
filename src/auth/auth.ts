@@ -1,5 +1,5 @@
 import type { AuthChangeEvent, Session, User } from '@supabase/supabase-js';
-import { getSupabaseClient } from '../lib/supabaseClient';
+import { getSupabaseClient, getSupabaseConfig } from '../lib/supabaseClient';
 
 export async function getCurrentUser(): Promise<User | null> {
   const client = getSupabaseClient();
@@ -26,10 +26,14 @@ export function observeAuth(
 
 export async function signInWithProvider(provider: 'google' | 'apple'): Promise<void> {
   const client = getSupabaseClient();
-  if (!client) throw new Error('Supabase není nakonfigurováno.');
+  const config = getSupabaseConfig();
+  if (!client || !config) throw new Error('Supabase není nakonfigurováno.');
   const { error } = await client.auth.signInWithOAuth({
     provider,
-    options: { redirectTo: window.location.origin },
+    options: {
+      redirectTo: window.location.origin,
+      queryParams: { apikey: config.anonKey },
+    },
   });
   if (error) throw error;
 }
