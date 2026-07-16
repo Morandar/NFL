@@ -25,5 +25,6 @@ export function createTestState(): GameState {
     hostId: 'Alice',
     connectedUsers: ['Alice', 'Bob'],
     messages: [],
+    appliedResults: [],
   };
 }

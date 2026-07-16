@@ -3,17 +3,20 @@ import type { LeagueGame } from '../leagues/service';
 
 interface LoginProps {
   onLocalLogin: (username: string) => void;
-  onCreateGame: (username: string) => Promise<void>;
+  onCreateGame: (username: string, gameName: string) => Promise<void>;
   onJoinGame: (username: string, code: string) => Promise<void>;
+  onResumeGame?: (gameId: string) => Promise<void>;
   onlineEnabled: boolean;
   leagueName?: string;
   availableGames?: LeagueGame[];
   onBackToLeagues?: () => void;
   onBackToSignIn?: () => void;
+  defaultUsername?: string;
 }
 
-export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues, onBackToSignIn }: LoginProps) {
-  const [username, setUsername] = useState('');
+export function Login({ onLocalLogin, onCreateGame, onJoinGame, onResumeGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues, onBackToSignIn, defaultUsername = '' }: LoginProps) {
+  const [username, setUsername] = useState(defaultUsername);
+  const [gameName, setGameName] = useState('Moje NFL sezóna');
   const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
   const [loadingAction, setLoadingAction] = useState<'create' | 'join' | null>(null);
@@ -42,7 +45,10 @@ export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, l
     }
     setLoadingAction(action);
     try {
-      if (action === 'create') await onCreateGame(name);
+      if (action === 'create') {
+        if (gameName.trim().length < 2) throw new Error('Název hry musí mít alespoň 2 znaky.');
+        await onCreateGame(name, gameName);
+      }
       else await onJoinGame(name, code);
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : 'Připojení ke hře se nezdařilo.');
@@ -99,14 +105,22 @@ export function Login({ onLocalLogin, onCreateGame, onJoinGame, onlineEnabled, l
                       type="button"
                       className="saved-game-button"
                       disabled={loadingAction !== null}
-                      onClick={() => { setGameCode(game.code); void runOnlineAction('join', game.code); }}
+                      onClick={() => {
+                        setLoadingAction('join');
+                        setError('');
+                        void onResumeGame?.(game.id).catch((actionError) => {
+                          setError(actionError instanceof Error ? actionError.message : 'Hru se nepodařilo načíst.');
+                        }).finally(() => setLoadingAction(null));
+                      }}
                     >
-                      <span><strong>{game.code}</strong><small>{game.status === 'completed' ? 'Dokončená' : 'Rozehraná'}</small></span>
+                      <span><strong>{game.name}</strong><small>{game.code} · {game.status === 'completed' ? 'Dokončená' : 'Rozehraná'}</small></span>
                       <span>Pokračovat →</span>
                     </button>
                   ))}
                 </div>
               )}
+              <label htmlFor="game-name">Název nové hry</label>
+              <input id="game-name" value={gameName} onChange={(event) => setGameName(event.target.value)} maxLength={60} placeholder="Např. Sezóna s klukama 2026" />
               <button type="submit" className="primary-button" disabled={loadingAction !== null}>
                 {loadingAction === 'create' ? 'Vytvářím…' : 'Vytvořit novou hru'} <span aria-hidden="true">→</span>
               </button>

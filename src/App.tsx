@@ -17,7 +17,7 @@ import { clearStoredRegions, loadStoredRegions, persistRegions } from './data/re
 import { NFL_TEAM_MAP } from './data/nflTeams';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
 import { SUPABASE_ENABLED } from './lib/supabaseClient';
-import { createOnlineGame, joinOnlineGame, type OnlineGameSession } from './multiplayer/session';
+import { createOnlineGame, joinOnlineGame, renameOnlineGame, resumeOnlineGame, type OnlineGameSession } from './multiplayer/session';
 import type { User } from '@supabase/supabase-js';
 import { AuthScreen } from './components/AuthScreen';
 import { LeagueHub } from './components/LeagueHub';
@@ -55,6 +55,7 @@ const initialState: GameState = {
   hostId: null,
   connectedUsers: [],
   messages: [],
+  appliedResults: [],
 };
 
 const TEAM_IDS: TeamId[] = [
@@ -147,7 +148,7 @@ function App() {
     }));
   };
 
-  const handleCreateOnlineGame = async (name: string) => {
+  const handleCreateOnlineGame = async (name: string, gameName: string) => {
     if (!leagueContext) throw new Error('Nejdřív vyber ligu a sezonu.');
     const freshState: GameState = {
       ...initialState,
@@ -160,11 +161,32 @@ function App() {
       freshState,
       leagueContext.leagueId,
       leagueContext.seasonId,
+      gameName,
     );
     localStorage.setItem('nfl-username', name);
     setUsername(name);
     setGameState(created.state);
     setOnlineSession(created.session);
+  };
+
+  const handleResumeOnlineGame = async (gameId: string) => {
+    const resumed = await resumeOnlineGame(gameId);
+    localStorage.setItem('nfl-username', resumed.displayName);
+    setUsername(resumed.displayName);
+    setGameState(resumed.state);
+    setOnlineSession(resumed.session);
+  };
+
+  const handleRenameOnlineGame = async () => {
+    if (!onlineSession) return;
+    const requested = window.prompt('Nový název hry', onlineSession.name);
+    if (!requested || requested.trim() === onlineSession.name || requested.trim().length < 2) return;
+    try {
+      const name = await renameOnlineGame(onlineSession.gameId, requested);
+      setOnlineSession((current) => current ? { ...current, name } : current);
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Hru se nepodařilo přejmenovat.');
+    }
   };
 
   useEffect(() => {
@@ -502,6 +524,7 @@ function App() {
         onLocalLogin={handleLogin}
         onCreateGame={handleCreateOnlineGame}
         onJoinGame={handleJoinOnlineGame}
+        onResumeGame={handleResumeOnlineGame}
         onlineEnabled={SUPABASE_ENABLED && !localMode && Boolean(leagueContext)}
         leagueName={leagueContext?.leagueName}
         availableGames={leagueContext?.games}
@@ -511,6 +534,7 @@ function App() {
           setLocalMode(false);
           localStorage.removeItem('nfl-username');
         } : undefined}
+        defaultUsername={authUser?.user_metadata.full_name ?? authUser?.user_metadata.name ?? authUser?.email?.split('@')[0] ?? ''}
       />
     );
   }
@@ -528,8 +552,9 @@ function App() {
         <div className="user-info">
           <div className="connection-pill">
             <span className="status-dot" aria-hidden="true" />
-            {onlineSession ? `Místnost ${onlineSession.code}` : 'Lokální hra'}
+            {onlineSession ? `${onlineSession.name} · ${onlineSession.code}` : 'Lokální hra'}
           </div>
+          {onlineSession && isHost && <button type="button" className="ghost-button" onClick={() => void handleRenameOnlineGame()}>Přejmenovat</button>}
           <div className="user-avatar" aria-hidden="true">{username.slice(0, 1).toUpperCase()}</div>
           <span className="user-name">{username}</span>
           <button onClick={() => {

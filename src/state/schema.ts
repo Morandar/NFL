@@ -1,7 +1,7 @@
 import { NFL_TEAMS } from '../data/nflTeams';
 import type { GameState, Player, Settings, TeamId } from './types';
 
-export const GAME_STATE_VERSION = 2;
+export const GAME_STATE_VERSION = 3;
 const TEAM_IDS = new Set<string>(NFL_TEAMS.map((team) => team.id));
 
 const DEFAULT_SETTINGS: Settings = {
@@ -67,6 +67,19 @@ export function normalizeGameState(value: unknown): GameState | null {
       timestamp: typeof message.timestamp === 'string' ? message.timestamp : new Date(0).toISOString(),
     }];
   }) : [];
+  const appliedResults = Array.isArray(value.appliedResults) ? value.appliedResults.flatMap((result) => {
+    if (!isRecord(result) || typeof result.week !== 'number') return [];
+    if (typeof result.winner !== 'string' || !TEAM_IDS.has(result.winner)) return [];
+    if (typeof result.loser !== 'string' || !TEAM_IDS.has(result.loser) || result.winner === result.loser) return [];
+    return [{
+      week: Math.max(1, Math.floor(result.week)),
+      winner: result.winner as TeamId,
+      loser: result.loser as TeamId,
+      margin: typeof result.margin === 'number' && result.margin >= 0 ? Math.floor(result.margin) : undefined,
+      isPlayoff: result.isPlayoff === true,
+      isSuperBowl: result.isSuperBowl === true,
+    }];
+  }) : [];
 
   return {
     phase,
@@ -82,5 +95,6 @@ export function normalizeGameState(value: unknown): GameState | null {
     hostId: typeof value.hostId === 'string' ? value.hostId : null,
     connectedUsers: strings(value.connectedUsers),
     messages: messages.slice(-100),
+    appliedResults: appliedResults.slice(-400),
   };
 }

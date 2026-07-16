@@ -20,7 +20,7 @@ npm run build
 Multiplayer uses permanent Supabase accounts, leagues, seasons, six-character game codes, Row Level Security and optimistic state versioning. Returning players can reopen games from their league dashboard.
 
 1. Create a new Supabase project. Keep anonymous sign-ins disabled.
-2. Run the migration in `supabase/migrations/202607150001_initial_multiplayer.sql` using the Supabase CLI (`supabase db push`) or the SQL editor.
+2. Run every migration in `supabase/migrations` in filename order using the Supabase CLI (`supabase db push`) or the SQL editor.
 3. Create a `.env.local` from `.env.example`:
    ```ini
    VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -29,6 +29,8 @@ Multiplayer uses permanent Supabase accounts, leagues, seasons, six-character ga
 4. In Supabase Authentication enable Email and, as desired, Google and Apple. Add the local and Vercel domains to URL Configuration / Redirect URLs.
 5. Start the app (`npm run dev`), sign in, create a league and share its eight-character invite code. Games remain attached to the league and season.
 6. Without these variables the app offers a local-only mode backed by versioned LocalStorage.
+
+Existing installations must also run `202607160002_game_names_and_resume.sql`; it adds game names and permanent-account resume support without changing room codes.
 
 The browser receives only the public anon key. Never expose the Supabase service-role key in Vite or Vercel variables.
 
@@ -48,7 +50,8 @@ The browser receives only the public anon key. Never expose the Supabase service
    - Each player's color is determined by their first pick
 
 3. **Season Phase**
-   - Import weekly results via CSV
+   - Enter two teams and their scores; the app determines the winner and margin
+   - CSV remains available as an advanced bulk import
    - Watch as territories change hands
    - Monitor standings and territorial control
 
@@ -89,12 +92,14 @@ Open a projection-friendly preview window:
 - Real-time standings with ownership percentages
 - Game log tracking all conquests
 - Persistent state (survives browser refresh)
+- Named league games that members can reopen without remembering a room code
+- Duplicate-result protection
 - Accessibility features (keyboard navigation, ARIA labels)
 
 ## Conquest Rules
 
 1. **Basic Capture**: Winner takes loser's territory
-2. **Margin Rule**: 8+ point wins grant 1 extra random capture
+2. **Margin Rule**: 8+ point wins grant 1 extra random neutral capture
 3. **Playoff Boost**: Playoff wins grant 1 extra capture
 4. **Super Bowl Sweep**: SB winner takes ALL loser's territories
 5. **Neutral Winner**: Unowned teams that win maintain previous owner

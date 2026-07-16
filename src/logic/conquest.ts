@@ -1,6 +1,10 @@
 import { GameState, ResultRow, TeamId } from '../state/types';
 
-export function applyRow(state: GameState, row: ResultRow): GameState {
+export function resultKey(row: ResultRow): string {
+  return `${row.week}:${row.winner}:${row.loser}`;
+}
+
+export function applyRow(state: GameState, row: ResultRow, random: () => number = Math.random): GameState {
   const newState: GameState = {
     ...state,
     log: [...state.log],
@@ -63,8 +67,11 @@ export function applyRow(state: GameState, row: ResultRow): GameState {
       .map(([teamId]) => teamId as TeamId);
     let captured = 0;
 
-    for (const territory of neutralTerritories) {
+    while (neutralTerritories.length > 0) {
       if (captured >= extraCaptures) break;
+      const territoryIndex = Math.floor(random() * neutralTerritories.length);
+      const [territory] = neutralTerritories.splice(territoryIndex, 1);
+      if (!territory) break;
       newState.ownership[territory] = winnerOwner;
       captured++;
     }
@@ -155,9 +162,16 @@ export function applyWeekResults(state: GameState, csvData: string): GameState {
     throw new Error(`CSV neobsahuje žádné výsledky pro týden ${state.week}.`);
   }
 
-  for (const row of weekResults) {
+  const appliedKeys = new Set((state.appliedResults ?? []).map(resultKey));
+  const newRows = weekResults.filter((row) => !appliedKeys.has(resultKey(row)));
+  if (newRows.length === 0) {
+    throw new Error(`Všechny zadané zápasy pro týden ${state.week} už byly zapsané.`);
+  }
+
+  for (const row of newRows) {
     newState = applyRow(newState, row);
   }
+  newState.appliedResults = [...(state.appliedResults ?? []), ...newRows];
 
   // Update players' teamsOwned based on current ownership
   newState.players = newState.players.map(player => ({

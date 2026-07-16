@@ -4,8 +4,20 @@ type GenericClient = SupabaseClient;
 
 let cachedClient: GenericClient | null = null;
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const RAW_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+function normalizeSupabaseUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value.trim());
+    return url.origin;
+  } catch {
+    return undefined;
+  }
+}
+
+const SUPABASE_URL = normalizeSupabaseUrl(RAW_SUPABASE_URL);
 
 function hasValidConfig(): boolean {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);

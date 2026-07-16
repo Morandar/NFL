@@ -41,6 +41,7 @@ create table public.games (
   league_id uuid not null references public.leagues(id) on delete cascade,
   season_id uuid not null references public.seasons(id) on delete cascade,
   code text not null unique check (code ~ '^[A-Z0-9]{6}$'),
+  name text not null check (char_length(name) between 2 and 60),
   host_user_id uuid not null references auth.users(id) on delete restrict,
   state jsonb not null,
   version bigint not null default 1,
@@ -187,7 +188,7 @@ end;
 $$;
 
 create or replace function public.create_game(target_league_id uuid, target_season_id uuid, initial_state jsonb, display_name text)
-returns table (game_id uuid, game_code text, game_state jsonb, game_version bigint)
+returns table (game_id uuid, game_code text, game_name text, game_state jsonb, game_version bigint)
 language plpgsql security definer set search_path = public as $$
 declare created_game public.games; candidate text;
 begin
@@ -201,13 +202,13 @@ begin
     candidate := public.generate_code(6);
     exit when not exists (select 1 from public.games where code = candidate);
   end loop;
-  insert into public.games (league_id, season_id, code, host_user_id, state)
-  values (target_league_id, target_season_id, candidate, auth.uid(), initial_state) returning * into created_game;
+  insert into public.games (league_id, season_id, code, name, host_user_id, state)
+  values (target_league_id, target_season_id, candidate, 'Hra ' || candidate, auth.uid(), initial_state) returning * into created_game;
   insert into public.game_members (game_id, user_id, display_name)
   values (created_game.id, auth.uid(), trim(display_name));
   insert into public.game_events (game_id, actor_user_id, event_type)
   values (created_game.id, auth.uid(), 'game_created');
-  return query select created_game.id, created_game.code, created_game.state, created_game.version;
+  return query select created_game.id, created_game.code, created_game.name, created_game.state, created_game.version;
 end;
 $$;
 

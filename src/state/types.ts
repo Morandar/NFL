@@ -42,6 +42,7 @@ export type GameState = {
   hostId: string | null;
   connectedUsers: string[];
   messages: { user: string; text: string; timestamp: string }[];
+  appliedResults: ResultRow[];
 };
 
 export type ResultRow = {

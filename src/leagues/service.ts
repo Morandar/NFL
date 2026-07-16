@@ -14,6 +14,7 @@ export type LeagueContext = {
 export type LeagueGame = {
   id: string;
   code: string;
+  name: string;
   status: 'setup' | 'active' | 'completed' | 'archived';
   updatedAt: string;
 };
@@ -29,7 +30,7 @@ type MembershipRow = {
       name: string;
       year: number;
       status: string;
-      games: Array<{ id: string; code: string; status: LeagueGame['status']; updated_at: string }>;
+      games: Array<{ id: string; code: string; name: string; status: LeagueGame['status']; updated_at: string }>;
     }>;
   } | null;
 };
@@ -39,7 +40,7 @@ export async function listMyLeagues(): Promise<LeagueContext[]> {
   if (!client) return [];
   const { data, error } = await client
     .from('league_members')
-    .select('role, leagues(id,name,invite_code,seasons(id,name,year,status,games(id,code,status,updated_at)))')
+    .select('role, leagues(id,name,invite_code,seasons(id,name,year,status,games(id,code,name,status,updated_at)))')
     .order('joined_at', { ascending: false });
   if (error) throw error;
   return ((data as unknown as MembershipRow[] | null) ?? []).flatMap((membership) => {
@@ -60,7 +61,7 @@ export async function listMyLeagues(): Promise<LeagueContext[]> {
       games: [...season.games]
         .filter((game) => game.status !== 'archived')
         .sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))
-        .map((game) => ({ id: game.id, code: game.code, status: game.status, updatedAt: game.updated_at })),
+        .map((game) => ({ id: game.id, code: game.code, name: game.name ?? `Hra ${game.code}`, status: game.status, updatedAt: game.updated_at })),
     }];
   });
 }

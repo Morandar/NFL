@@ -4,7 +4,7 @@
 
 1. Create a fresh Supabase project.
 2. Keep anonymous sign-ins disabled. Email magic links are the baseline login method.
-3. Run `supabase/migrations/202607150001_initial_multiplayer.sql` in the SQL editor or link the CLI and run `supabase db push`.
+3. Run all files in `supabase/migrations` in filename order in the SQL editor, or link the CLI and run `supabase db push`.
 4. Copy the project URL and public anon key. Never use the service-role key in this frontend.
 5. In Authentication → URL Configuration set the production Site URL and add both the Vercel domain and `http://localhost:5173` as redirect URLs.
 6. Optional: enable Google and Apple providers and enter their client credentials. Their callback URL is shown by Supabase in each provider's settings.

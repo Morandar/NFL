@@ -15,6 +15,12 @@ describe('game state schema', () => {
     expect(normalizeGameState(legacy)?.settings.lockDivisionRule).toBe(false);
   });
 
+  it('migrates a saved game without result history', () => {
+    const legacy = createTestState() as unknown as { appliedResults?: unknown[] };
+    delete legacy.appliedResults;
+    expect(normalizeGameState(legacy)?.appliedResults).toEqual([]);
+  });
+
   it('removes ownership pointing to a missing player', () => {
     const state = createTestState();
     state.ownership.BUF = 'missing-player';

@@ -8,25 +8,21 @@ import type { MultiplayerStatus } from '../hooks/useSupabaseSync';
 
 type ManualRow = {
   id: string;
-  week: string;
   winner: TeamId | '';
   winnerScore: string;
   loser: TeamId | '';
   loserScore: string;
-  isPlayoff: boolean;
-  isSuperBowl: boolean;
+  phase: 'regular' | 'playoff' | 'superbowl';
 };
 
 function createEmptyRow(week: number): ManualRow {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    week: week.toString(),
     winner: '',
     winnerScore: '',
     loser: '',
     loserScore: '',
-    isPlayoff: false,
-    isSuperBowl: false,
+    phase: week > 18 ? 'playoff' : 'regular',
   };
 }
 
@@ -182,7 +178,6 @@ export function ControlPanel({
 
   const manualRowsValid = manualRows.every(
     (row) =>
-      parseInt(row.week, 10) === gameState.week &&
       row.winner &&
       row.winnerScore.trim() !== '' &&
       row.loser &&
@@ -192,20 +187,23 @@ export function ControlPanel({
       !isNaN(parseInt(row.loserScore, 10)) &&
       parseInt(row.winnerScore, 10) >= 0 &&
       parseInt(row.loserScore, 10) >= 0 &&
-      parseInt(row.winnerScore, 10) > parseInt(row.loserScore, 10),
+      parseInt(row.winnerScore, 10) !== parseInt(row.loserScore, 10),
   );
 
   const manualRowsToCsv = () => {
     const header = 'week,winner,loser,margin,isPlayoff,isSuperBowl';
     const lines = manualRows.map((row) => {
-      const margin = parseInt(row.winnerScore) - parseInt(row.loserScore);
+      const firstScore = parseInt(row.winnerScore);
+      const secondScore = parseInt(row.loserScore);
+      const firstWon = firstScore > secondScore;
+      const margin = Math.abs(firstScore - secondScore);
       const parts = [
-        row.week.trim(),
-        row.winner,
-        row.loser,
+        gameState.week.toString(),
+        firstWon ? row.winner : row.loser,
+        firstWon ? row.loser : row.winner,
         margin.toString(),
-        row.isPlayoff ? 'true' : 'false',
-        row.isSuperBowl ? 'true' : 'false',
+        row.phase !== 'regular' ? 'true' : 'false',
+        row.phase === 'superbowl' ? 'true' : 'false',
       ];
       return parts.join(',');
     });
@@ -214,7 +212,7 @@ export function ControlPanel({
 
   const handleApplyManualRows = () => {
     if (!manualRowsValid) {
-      setError(`Zkontroluj týden ${gameState.week}, týmy a skóre. Vítěz musí mít vyšší skóre.`);
+      setError(`Zkontroluj týmy a skóre pro týden ${gameState.week}. Remízu zatím nelze zapsat.`);
       return;
     }
 
@@ -544,27 +542,17 @@ export function ControlPanel({
               <table className="manual-results-table">
                 <thead>
                   <tr>
-                    <th>Týden</th>
-                    <th>Vítěz</th>
+                    <th>Tým A</th>
                     <th>Skóre</th>
-                    <th>Poražený</th>
+                    <th>Tým B</th>
                     <th>Skóre</th>
-                    <th>Playoff</th>
-                    <th>Super Bowl</th>
+                    <th>Fáze</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {manualRows.map((row) => (
                     <tr key={row.id}>
-                      <td>
-                        <input
-                          type="number"
-                          min={1}
-                          value={row.week}
-                          onChange={(event) => handleManualRowChange(row.id, { week: event.target.value })}
-                        />
-                      </td>
                       <td>
                         <select
                           value={row.winner}
@@ -607,19 +595,12 @@ export function ControlPanel({
                           onChange={(event) => handleManualRowChange(row.id, { loserScore: event.target.value })}
                         />
                       </td>
-                      <td className="manual-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={row.isPlayoff}
-                          onChange={(event) => handleManualRowChange(row.id, { isPlayoff: event.target.checked })}
-                        />
-                      </td>
-                      <td className="manual-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={row.isSuperBowl}
-                          onChange={(event) => handleManualRowChange(row.id, { isSuperBowl: event.target.checked })}
-                        />
+                      <td>
+                        <select value={row.phase} onChange={(event) => handleManualRowChange(row.id, { phase: event.target.value as ManualRow['phase'] })}>
+                          <option value="regular">Základní část</option>
+                          <option value="playoff">Playoff</option>
+                          <option value="superbowl">Super Bowl</option>
+                        </select>
                       </td>
                       <td>
                         <button type="button" onClick={() => handleRemoveManualRow(row.id)}>
