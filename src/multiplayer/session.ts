@@ -141,6 +141,13 @@ export async function renameOnlineGame(gameId: string, name: string): Promise<st
   return String(data);
 }
 
+export async function archiveOnlineGame(gameId: string): Promise<void> {
+  const client = getSupabaseClient();
+  if (!client) throw new Error('Supabase není nakonfigurováno.');
+  const { error } = await client.rpc('archive_game', { target_game_id: gameId });
+  if (error) throw error;
+}
+
 export async function leaveOnlineIdentity(): Promise<void> {
   const client = getSupabaseClient();
   if (client) await client.auth.signOut();

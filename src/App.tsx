@@ -17,12 +17,12 @@ import { clearStoredRegions, loadStoredRegions, persistRegions } from './data/re
 import { NFL_TEAM_MAP } from './data/nflTeams';
 import { useSupabaseSync } from './hooks/useSupabaseSync';
 import { SUPABASE_ENABLED } from './lib/supabaseClient';
-import { createOnlineGame, joinOnlineGame, renameOnlineGame, resumeOnlineGame, type OnlineGameSession } from './multiplayer/session';
+import { archiveOnlineGame, createOnlineGame, joinOnlineGame, renameOnlineGame, resumeOnlineGame, type OnlineGameSession } from './multiplayer/session';
 import type { User } from '@supabase/supabase-js';
 import { AuthScreen } from './components/AuthScreen';
 import { LeagueHub } from './components/LeagueHub';
 import { getCurrentUser, observeAuth } from './auth/auth';
-import type { LeagueContext } from './leagues/service';
+import type { LeagueContext, LeagueGame } from './leagues/service';
 import './styles.css';
 
 const RANDOM_COLORS = [
@@ -169,12 +169,38 @@ function App() {
     setOnlineSession(created.session);
   };
 
-  const handleResumeOnlineGame = async (gameId: string) => {
-    const resumed = await resumeOnlineGame(gameId);
-    localStorage.setItem('nfl-username', resumed.displayName);
-    setUsername(resumed.displayName);
-    setGameState(resumed.state);
-    setOnlineSession(resumed.session);
+  const handleResumeOnlineGame = async (game: LeagueGame) => {
+    try {
+      const resumed = await resumeOnlineGame(game.id);
+      localStorage.setItem('nfl-username', resumed.displayName);
+      setUsername(resumed.displayName);
+      setGameState(resumed.state);
+      setOnlineSession(resumed.session);
+    } catch (resumeError) {
+      const fallbackName = authUser?.user_metadata.full_name
+        ?? authUser?.user_metadata.name
+        ?? authUser?.email?.split('@')[0]
+        ?? 'Player';
+      try {
+        const joined = await joinOnlineGame(fallbackName, game.code);
+        localStorage.setItem('nfl-username', fallbackName);
+        setUsername(fallbackName);
+        setGameState(joined.state);
+        setOnlineSession({ ...joined.session, name: game.name });
+      } catch (fallbackError) {
+        const first = resumeError instanceof Error ? resumeError.message : 'resume_game selhalo';
+        const second = fallbackError instanceof Error ? fallbackError.message : 'fallback přes kód selhal';
+        throw new Error(`Hru se nepodařilo načíst. RPC: ${first}. Připojení přes kód: ${second}.`);
+      }
+    }
+  };
+
+  const handleArchiveOnlineGame = async (game: LeagueGame) => {
+    await archiveOnlineGame(game.id);
+    setLeagueContext((current) => current ? {
+      ...current,
+      games: current.games.filter((item) => item.id !== game.id),
+    } : current);
   };
 
   const handleRenameOnlineGame = async () => {
@@ -525,6 +551,7 @@ function App() {
         onCreateGame={handleCreateOnlineGame}
         onJoinGame={handleJoinOnlineGame}
         onResumeGame={handleResumeOnlineGame}
+        onArchiveGame={handleArchiveOnlineGame}
         onlineEnabled={SUPABASE_ENABLED && !localMode && Boolean(leagueContext)}
         leagueName={leagueContext?.leagueName}
         availableGames={leagueContext?.games}

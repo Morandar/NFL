@@ -5,7 +5,8 @@ interface LoginProps {
   onLocalLogin: (username: string) => void;
   onCreateGame: (username: string, gameName: string) => Promise<void>;
   onJoinGame: (username: string, code: string) => Promise<void>;
-  onResumeGame?: (gameId: string) => Promise<void>;
+  onResumeGame?: (game: LeagueGame) => Promise<void>;
+  onArchiveGame?: (game: LeagueGame) => Promise<void>;
   onlineEnabled: boolean;
   leagueName?: string;
   availableGames?: LeagueGame[];
@@ -14,12 +15,13 @@ interface LoginProps {
   defaultUsername?: string;
 }
 
-export function Login({ onLocalLogin, onCreateGame, onJoinGame, onResumeGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues, onBackToSignIn, defaultUsername = '' }: LoginProps) {
+export function Login({ onLocalLogin, onCreateGame, onJoinGame, onResumeGame, onArchiveGame, onlineEnabled, leagueName, availableGames = [], onBackToLeagues, onBackToSignIn, defaultUsername = '' }: LoginProps) {
   const [username, setUsername] = useState(defaultUsername);
   const [gameName, setGameName] = useState('Moje NFL sezóna');
   const [gameCode, setGameCode] = useState('');
   const [error, setError] = useState('');
   const [loadingAction, setLoadingAction] = useState<'create' | 'join' | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
 
   const validateName = (): string | null => {
     const trimmed = username.trim();
@@ -100,22 +102,33 @@ export function Login({ onLocalLogin, onCreateGame, onJoinGame, onResumeGame, on
                 <div className="saved-games">
                   <span className="field-label">Rozehrané hry</span>
                   {availableGames.map((game) => (
-                    <button
-                      key={game.id}
-                      type="button"
-                      className="saved-game-button"
-                      disabled={loadingAction !== null}
-                      onClick={() => {
-                        setLoadingAction('join');
-                        setError('');
-                        void onResumeGame?.(game.id).catch((actionError) => {
-                          setError(actionError instanceof Error ? actionError.message : 'Hru se nepodařilo načíst.');
-                        }).finally(() => setLoadingAction(null));
-                      }}
-                    >
-                      <span><strong>{game.name}</strong><small>{game.code} · {game.status === 'completed' ? 'Dokončená' : 'Rozehraná'}</small></span>
-                      <span>Pokračovat →</span>
-                    </button>
+                    <div key={game.id} className="saved-game-row">
+                      <button
+                        type="button"
+                        className="saved-game-button"
+                        disabled={loadingAction !== null || archivingId !== null}
+                        onClick={() => {
+                          setLoadingAction('join');
+                          setError('');
+                          void onResumeGame?.(game).catch((actionError) => {
+                            setError(actionError instanceof Error ? actionError.message : 'Hru se nepodařilo načíst.');
+                          }).finally(() => setLoadingAction(null));
+                        }}
+                      >
+                        <span><strong>{game.name}</strong><small>{game.code} · {game.status === 'completed' ? 'Dokončená' : 'Rozehraná'}</small></span>
+                        <span>Pokračovat →</span>
+                      </button>
+                      {onArchiveGame && (
+                        <button type="button" className="archive-game-button" disabled={loadingAction !== null || archivingId !== null} onClick={() => {
+                          if (!window.confirm(`Odebrat hru „${game.name}“ z přehledu? Historie zůstane zachovaná.`)) return;
+                          setArchivingId(game.id);
+                          setError('');
+                          void onArchiveGame(game).catch((actionError) => {
+                            setError(actionError instanceof Error ? actionError.message : 'Hru se nepodařilo odebrat.');
+                          }).finally(() => setArchivingId(null));
+                        }}>{archivingId === game.id ? '…' : 'Odebrat'}</button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}

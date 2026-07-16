@@ -1838,4 +1838,14 @@ select:focus {
 }
 
 .saved-game-button small { color: var(--text-muted); }
+.saved-game-row { align-items: stretch; display: flex; gap: .5rem; }
+.saved-game-row .saved-game-button { flex: 1; }
+.archive-game-button {
+  background: transparent;
+  border: 1px solid rgba(255, 107, 107, .28);
+  color: #ff9b9b;
+  font-size: .76rem;
+  padding-inline: .7rem;
+}
+.archive-game-button:hover { background: rgba(255, 107, 107, .1); }
 .back-to-leagues { margin-top: 0.35rem; width: 100%; }
